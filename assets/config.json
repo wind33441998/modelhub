@@ -7,8 +7,10 @@
       "base_url": "https://api.deepseek.com/chat/completions",
       "api_key": "${DEEPSEEK_KEY}",
       "models": {
-        "deepseek-chat": "deepseek-chat",
-        "deepseek-reasoner": "deepseek-reasoner"
+        "deepseek-chat": "deepseek-v4-flash",
+        "deepseek-reasoner": "deepseek-v4-pro",
+        "deepseek-v4-flash": "deepseek-v4-flash",
+        "deepseek-v4-pro": "deepseek-v4-pro"
       }
     },
     "siliconflow": {

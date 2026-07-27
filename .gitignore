@@ -3,3 +3,7 @@ keys.json
 node_modules/
 *.log
 *.skill
+# 调试/运行时生成文件：可能含完整请求体或对话上下文，禁止提交
+last_request.json
+turn_context.json
+upstream_dump.log

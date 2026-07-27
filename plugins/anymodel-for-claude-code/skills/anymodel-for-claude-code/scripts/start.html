@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' http://127.0.0.1:4000; frame-ancestors 'none'" />
+<title>ModelHub 多模型网关 — 管理面板</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* ===== 日间模式（默认） ===== */
+  --ink:#eaeff5; --ink2:#f5f8fc; --panel:#ffffff; --panel2:#f3f7fb; --line:#e3e9f1; --line2:#eef3f9;
+  --text:#0f1b2d; --muted:#64748b; --acid:#54a60e; --acid-dim:#42870a; --acid-soft:rgba(84,166,14,.12);
+  --cyan:#0b7ea0; --cyan-soft:rgba(11,126,160,.10); --amber:#b9760a; --purple:#6a3fb0;
+  --ok:#1faa5a; --bad:#e04646; --warn:#b9760a; --acid-glow:rgba(84,166,14,.30);
+  --shadow-card:0 1px 2px rgba(15,27,45,.05),0 14px 36px -16px rgba(15,27,45,.16);
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --disp:"Syne",system-ui,sans-serif; --body:"Manrope",system-ui,sans-serif;
+  --r:18px; --maxw:980px;
+}
+[data-theme="dark"]{
+  --ink:#0a0e15; --ink2:#0d121b; --panel:#111722; --panel2:#0e131c; --line:#1e2735; --line2:#19212e;
+  --text:#e8eef6; --muted:#8493a8; --acid:#c8ff4d; --acid-dim:#9bcc3a; --acid-soft:rgba(200,255,77,.12);
+  --cyan:#5ad1e6; --cyan-soft:rgba(90,209,230,.10); --amber:#ffb020; --purple:#b78cff;
+  --ok:#3ddc84; --bad:#ff5d5d; --warn:#ffb020; --acid-glow:rgba(200,255,77,.30);
+  --shadow-card:0 14px 40px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--body);background-color:var(--ink);color:var(--text);line-height:1.55;
+  min-height:100vh;overflow-x:hidden;
+  background-image:
+    radial-gradient(1100px 560px at 8% -10%, rgba(84,166,14,.10), transparent 60%),
+    radial-gradient(1000px 560px at 102% -4%, rgba(11,126,160,.08), transparent 55%),
+    linear-gradient(rgba(15,27,45,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(15,27,45,.045) 1px,transparent 1px);
+  background-size:auto,auto,34px 34px,34px 34px;background-attachment:fixed;transition:background-color .3s,color .3s}
+[data-theme="dark"] body{background-image:
+    radial-gradient(1100px 560px at 8% -10%, rgba(200,255,77,.08), transparent 60%),
+    radial-gradient(1000px 560px at 102% -4%, rgba(90,209,230,.06), transparent 55%),
+    linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.04;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:26px 20px 70px}
+.r{opacity:0;transform:translateY(14px);animation:rise .6s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:26px}
+.brand{display:flex;align-items:center;gap:13px}
+.mark{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-size:22px;
+  background:linear-gradient(145deg,var(--acid),var(--acid-dim));color:#0a0e15;box-shadow:0 8px 24px -6px var(--acid-glow);border:1px solid rgba(255,255,255,.18)}
+.brand h1{font-family:var(--disp);font-weight:800;font-size:21px;letter-spacing:-.4px;display:flex;align-items:center;gap:10px}
+.conn{width:9px;height:9px;border-radius:50%;background:var(--bad);box-shadow:0 0 10px var(--bad)}
+.conn.ok{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.brand p{font-size:12.5px;color:var(--muted);margin-top:1px}
+.toggles{display:flex;gap:9px}
+.tg{cursor:pointer;font-family:var(--mono);font-size:12px;padding:8px 13px;border-radius:11px;
+  border:1px solid var(--line);background:var(--panel);color:var(--text);transition:.18s}
+.tg:hover{border-color:var(--acid);color:var(--acid)}
+.card{background:linear-gradient(180deg,#ffffff,#fbfdff);border:1px solid var(--line);
+  border-radius:var(--r);padding:22px;margin-bottom:18px;box-shadow:var(--shadow-card);position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s,transform .2s}
+[data-theme="dark"] .card{background:linear-gradient(180deg,var(--panel),var(--panel2))}
+.card:hover{border-color:var(--line2);box-shadow:0 1px 2px rgba(15,27,45,.05),0 22px 48px -18px rgba(15,27,45,.22)}
+[data-theme="dark"] .card:hover{box-shadow:0 22px 48px -18px rgba(0,0,0,.45)}
+.card::after{content:"";position:absolute;left:0;top:0;height:3px;width:100%;
+  background:linear-gradient(90deg,var(--acid),transparent 55%);opacity:.9}
+.ct{font-family:var(--disp);font-weight:700;font-size:14px;letter-spacing:.3px;display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.num{width:23px;height:23px;border-radius:8px;background:var(--acid);color:#0a0e15;font-family:var(--mono);
+  font-size:12px;font-weight:700;display:grid;place-items:center}
+.env{display:grid;grid-template-columns:repeat(5,1fr);gap:11px}
+.tile{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px;transition:.18s}
+.tile:hover{border-color:var(--acid);transform:translateY(-2px)}
+.tile .l{font-size:11px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px}
+.tile .v{font-size:14px;font-weight:700;margin-top:6px;display:flex;align-items:center;gap:8px}
+.dot{width:9px;height:9px;border-radius:50%}
+.dot.ok{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.dot.bad{background:var(--bad);box-shadow:0 0 10px var(--bad)}
+.tile .m{font-size:10.5px;color:var(--muted);margin-top:5px}
+.badge{font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:999px;border:1px solid var(--line)}
+.badge.cn{color:var(--cyan);border-color:rgba(90,209,230,.4);background:rgba(90,209,230,.08)}
+.badge.intl{color:var(--amber);border-color:rgba(255,176,32,.4);background:rgba(255,176,32,.08)}
+.btn{cursor:pointer;font-family:var(--mono);font-size:12.5px;font-weight:700;padding:11px 18px;border-radius:12px;
+  border:none;background:linear-gradient(180deg,var(--acid),var(--acid-dim));color:#0a0e15;transition:.18s;box-shadow:0 8px 22px -8px var(--acid-glow);text-decoration:none;display:inline-block;letter-spacing:.2px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px -10px var(--acid-glow);filter:brightness(1.04)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text);box-shadow:none}
+.btn.ghost:hover{border-color:var(--acid);color:var(--acid);box-shadow:none;filter:none}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;filter:none}
+/* clients */
+.clients{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.client{cursor:pointer;border:1.5px solid var(--line);border-radius:14px;padding:16px;background:var(--panel2);position:relative;transition:.18s}
+.client:hover{border-color:var(--acid)}
+.client.sel{border-color:var(--acid);box-shadow:0 0 0 2px var(--acid-soft),0 14px 34px -16px var(--acid-glow)}
+.client .ch{display:flex;align-items:center;gap:11px;margin-bottom:13px}
+.client .ci{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:19px;
+  background:rgba(200,255,77,.1);border:1px solid rgba(200,255,77,.25)}
+.client .cn{font-weight:700;font-size:15px}
+.client .cs{font-family:var(--mono);font-size:10.5px;margin-top:2px;display:flex;align-items:center;gap:6px}
+.client .crow{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:7px;gap:10px}
+.client .crow .k{color:var(--muted);flex-shrink:0}
+.client .crow .vv{font-family:var(--mono);color:var(--cyan);text-align:right}
+.client .tag{position:absolute;top:14px;right:14px;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:999px}
+.tag.on{color:var(--ok);background:rgba(61,220,132,.12);border:1px solid rgba(61,220,132,.3)}
+.tag.off{color:var(--bad);background:rgba(255,93,93,.1);border:1px solid rgba(255,93,93,.3)}
+.client .selbar{position:absolute;left:0;bottom:0;height:3px;width:100%;background:linear-gradient(90deg,var(--acid),transparent);opacity:0;transition:.18s}
+.client.sel .selbar{opacity:1}
+.modelselect{font-family:var(--mono);font-size:12px;padding:7px 10px;border-radius:9px;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer;min-width:172px;max-width:100%}
+.modelselect:focus{outline:none;border-color:var(--acid)}
+.modelselect:disabled{opacity:.55;cursor:not-allowed}
+.modelselect option{background:var(--panel);color:var(--text)}
+.krow{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:6px 8px;border-radius:10px;transition:background .15s}
+.krow:hover{background:rgba(255,255,255,.03)}
+.krow .kn{max-width:220px;font-size:13px;flex-shrink:0;display:flex;align-items:center;gap:7px;min-width:0;overflow:hidden}
+.krow .kn .ico{flex-shrink:0}
+.krow .kn .kn-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.krow .kn .badge{flex-shrink:0}
+.krow input{flex:1;font-family:var(--mono);font-size:12.5px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
+.krow input:focus{outline:none;border-color:var(--acid)}
+.krow .st{font-family:var(--mono);font-size:10.5px;color:var(--muted);width:62px;text-align:right;flex-shrink:0;white-space:nowrap}
+.krow .btn{padding:9px 14px;font-size:12px;flex-shrink:0;white-space:nowrap}
+.eye{cursor:pointer;background:transparent;border:1px solid var(--line);border-radius:9px;padding:6px 9px;font-size:13px;color:var(--muted);transition:.16s;flex-shrink:0}
+.eye:hover{border-color:var(--acid);color:var(--acid)}
+/* tabs */
+.tabs{display:flex;gap:8px;margin-bottom:15px}
+.tab{cursor:pointer;font-family:var(--mono);font-size:12.5px;font-weight:700;padding:9px 16px;border-radius:11px;
+  border:1px solid var(--line);background:var(--panel);color:var(--muted);transition:.16s}
+.tab.on{color:var(--acid);border-color:var(--acid);background:rgba(200,255,77,.08)}
+.tab .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.tab .dot.cc{background:var(--acid)} .tab .dot.cx{background:var(--cyan)}
+.pathbox{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:13px}
+.pathbox .pl{font-size:11px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.pathbox code{flex:1;min-width:0;font-family:var(--mono);font-size:12px;color:var(--cyan);word-break:break-all}
+.pathstate{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pathstate.exist{color:var(--ok);background:rgba(61,220,132,.12);border:1px solid rgba(61,220,132,.3)}
+.pathstate.miss{color:var(--amber);background:rgba(255,176,32,.1);border:1px solid rgba(255,176,32,.3)}
+pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;background:#0b1220;border:1px solid rgba(15,27,45,.12);border-radius:14px;padding:18px;overflow:auto;color:#cfe3ff;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+[data-theme="dark"] pre{border-color:var(--line)}
+.steps{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.step{display:flex;gap:11px;align-items:flex-start;font-size:13px;color:#3a4759}
+[data-theme="dark"] .step{color:#cdd7e4}
+.step .sn{flex-shrink:0;width:21px;height:21px;border-radius:7px;background:var(--line);color:var(--acid);font-family:var(--mono);font-size:11px;font-weight:700;display:grid;place-items:center}
+.warn{margin-top:14px;display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--warn);background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.3);border-radius:11px;padding:11px 13px;line-height:1.7}
+.warn b{color:var(--amber)}
+/* activity log with source */
+.loglist{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
+.logrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel2)}
+.logrow .lt{color:var(--muted);width:66px;flex-shrink:0}
+.logrow .lm{color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logrow .lsrc{width:78px;flex-shrink:0;font-weight:700}
+.logrow .lsrc.cc{color:var(--acid)} .logrow .lsrc.cx{color:var(--cyan)} .logrow .lsrc.api{color:var(--purple)}
+.logrow .lp{color:var(--cyan);width:70px;flex-shrink:0}
+.logrow .ls{width:46px;text-align:right;flex-shrink:0;font-weight:700}
+.logrow .ls.ok{color:var(--ok)} .logrow .ls.err{color:var(--bad)}
+.logrow .lms{color:var(--muted);width:56px;text-align:right;flex-shrink:0}
+.foot{text-align:center;font-size:11.5px;color:var(--muted);font-family:var(--mono);margin-top:10px}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) translateY(18px) scale(.96);background:linear-gradient(180deg,var(--acid),var(--acid-dim));color:#0a0e15;font-family:var(--mono);font-weight:700;font-size:12.5px;padding:12px 22px;border-radius:13px;opacity:0;pointer-events:none;transition:.25s cubic-bezier(.2,.8,.2,1);z-index:99;box-shadow:0 16px 40px -12px var(--acid-glow);max-width:86vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.toast-err{background:linear-gradient(180deg,#ff6b6b,#e04646);color:#fff;box-shadow:0 16px 40px -12px rgba(224,70,70,.42)}
+.toast-warn{background:linear-gradient(180deg,#ffc24d,#e09b12);color:#0a0e15;box-shadow:0 16px 40px -12px rgba(224,155,18,.42)}
+.design-note{font-size:11.5px;color:var(--muted);font-family:var(--mono);margin-top:6px;line-height:1.6}
+.design-note b{color:var(--acid-dim)}
+.maillink{color:var(--acid);font-weight:700;text-decoration:underline;cursor:pointer}
+.maillink:hover{color:var(--acid-dim)}
+.offline{text-align:center;padding:40px 20px;color:var(--muted);font-family:var(--mono);font-size:13px;line-height:1.8}
+.offline .btn{margin-top:16px}
+@media(max-width:680px){.env{grid-template-columns:repeat(2,1fr)}.clients{grid-template-columns:1fr}.krow .kn{max-width:120px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top r" style="animation-delay:.02s">
+    <div class="brand">
+      <div class="mark">🔌</div>
+      <div>
+        <h1>ModelHub 多模型网关 <span class="conn" id="connDot" title="代理连接状态"></span></h1>
+        <p>Claude Code · Codex 统一网关 · 本地运行 · 密钥存本机</p>
+      </div>
+    </div>
+    <div class="toggles">
+      <button class="tg" id="langBtn">EN</button>
+      <button class="tg" id="themeBtn">🌙</button>
+    </div>
+  </div>
+
+  <!-- 0. 环境自检 -->
+  <div class="card r" style="animation-delay:.08s">
+    <div class="ct">环境自检 <span id="envHint" class="badge intl" style="margin-left:auto;cursor:pointer">运行自检</span></div>
+    <div class="env" id="envGrid"></div>
+  </div>
+
+  <!-- 卡1：配置 API 密钥（前置条件） -->
+  <div class="card r" style="animation-delay:.14s">
+    <div class="ct"><span class="num">1</span>配置 API 密钥 <span style="margin-left:auto;font-size:11px;color:var(--muted);font-family:var(--mono)">先填密钥，才能选模型</span></div>
+    <div id="keyList"></div>
+    <div class="design-note">为每个供应商填写并保存 API Key（仅存本机 <code>~/.modelhub/keys.json</code>）。<b>密钥就绪后</b>，卡2「已连接客户端」里的绑定模型下拉才会出现可选项；未配密钥的供应商其模型为灰禁状态。</div>
+  </div>
+
+  <!-- 卡2：已连接客户端（选客户端 + 绑模型） -->
+  <div class="card r" style="animation-delay:.2s">
+    <div class="ct"><span class="num">2</span>已连接客户端 <span class="badge cn" style="margin-left:auto;font-size:10px">2 个 · 点卡片选客户端</span></div>
+    <div class="clients" id="clientWrap"></div>
+    <div class="design-note">点任意客户端卡片选定要配置的软件（选中者酸绿描边），再用卡片内 <b>绑定模型下拉</b> 选择当前激活模型。<b>网关同一时刻只有一个激活模型</b>，两个客户端共用该选择。未配密钥的供应商模型为灰禁状态。</div>
+  </div>
+
+  <!-- 卡3：接入客户端 -->
+  <div class="card r" style="animation-delay:.26s">
+    <div class="ct"><span class="num">3</span>接入客户端</div>
+    <div class="design-note">点「更改配置文件」会由本地代理自动定位并修改对应配置文件（<code>~/.claude/settings.json</code> / <code>~/.codex/config.toml</code>），仅<b>合并新增项、不覆盖你原有内容</b>；写入前自动备份为 <code>.bak</code>，出错可一键还原。</div>
+    <div class="tabs">
+      <div class="tab on" data-tab="cc"><span class="dot cc"></span>Claude Code</div>
+      <div class="tab" data-tab="cx"><span class="dot cx"></span>Codex</div>
+    </div>
+
+    <div class="tabpane" id="pane-cc">
+      <div class="pathbox">
+        <span class="pl">目标文件</span>
+        <code>~/.claude/settings.json</code>
+        <span class="pathstate" id="ccState">检测中</span>
+      </div>
+      <pre id="ccCode">{
+  "env": {
+    "ANTHROPIC_API_URL": "http://127.0.0.1:4000",
+    "ANTHROPIC_BASE_URL": "http://127.0.0.1:4000",
+    "ANTHROPIC_AUTH_TOKEN": "sk-local-proxy",
+    "ANTHROPIC_MODEL": "default",
+    "ANTHROPIC_SMALL_FAST_MODEL": "default",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "default",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "default",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "default",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "default"
+  }
+}</pre>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn" id="ccWrite">✍ 更改配置文件</button>
+        <button class="btn ghost" id="ccCopy">📋 复制 settings.json</button>
+      </div>
+      <div style="text-align:center;margin-top:10px"><a class="maillink" id="ccRestore" href="#">🔗 恢复原配置</a></div>
+      <div class="warn"><span>⚠️</span><span>点「更改配置文件」会<b>自动合并</b>上面的 env 段进你现有的 settings.json：仅新增/覆盖 ModelHub 相关 key，<b>不动你原有的 theme、API_TIMEOUT_MS 等其他配置</b>；写入前自动备份为 <code>settings.json.bak</code>，出错可一键恢复。</span></div>
+    </div>
+
+    <div class="tabpane" id="pane-cx" style="display:none">
+      <div class="pathbox">
+        <span class="pl">目标文件</span>
+        <code>~/.codex/config.toml</code>
+        <span class="pathstate" id="cxState">检测中</span>
+      </div>
+      <pre id="cxCode"># 顶层：切换为 ModelHub 供应商
+model = "deepseek-chat"
+model_provider = "modelhub"
+
+[model_providers.modelhub]
+name = "ModelHub"
+base_url = "http://127.0.0.1:4000/v1"
+api_key = "sk-local-proxy"
+wire_api = "chat"
+models = ["deepseek-chat", "deepseek-reasoner", "glm-4-plus", "kimi-chat", "qwen-max"]
+default_model = "deepseek-chat"</pre>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn" id="cxWrite">✍ 更改配置文件</button>
+        <button class="btn ghost" id="cxCopy">📋 复制 config.toml</button>
+      </div>
+      <div style="text-align:center;margin-top:10px"><a class="maillink" id="cxRestore" href="#">🔗 恢复原配置</a></div>
+      <div class="warn"><span>⚠️</span><span>点「更改配置文件」只改顶层 <b>model</b> / <b>model_provider</b> 两行，并新增/覆盖 <b>[model_providers.modelhub]</b> 段；<b>不动你原有的 [model_providers.deepseek]、[projects.*]、[plugins.*] 等</b>。写入前自动备份为 <code>config.toml.bak</code>。</span></div>
+      <div class="steps">
+        <div class="step"><span class="sn">A</span><span>保持 ModelHub 代理运行（本界面能打开即说明它开着）。</span></div>
+        <div class="step"><span class="sn">B</span><span>复制上方片段，粘贴到 <code>~/.codex/config.toml</code> 末尾（用记事本打开）。</span></div>
+        <div class="step"><span class="sn">C</span><span>完全退出并重启 Codex 桌面端，新配置才生效。</span></div>
+        <div class="step"><span class="sn">D</span><span>在 Codex 发一条消息，回本界面看「活动日志」来源列是否出现 API 记录。</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 卡4：活动日志 -->
+  <div class="card r" style="animation-delay:.32s">
+    <div class="ct">活动日志 <span id="logCount" class="badge intl" style="margin-left:auto">0 条</span></div>
+    <div id="logList" class="loglist"></div>
+    <div style="text-align:center;margin-top:10px"><button class="btn ghost" id="logMore" style="display:none">加载更多</button></div>
+    <div class="design-note">「来源」列区分请求来自 Claude Code / OpenAI API（Codex 等走 OpenAI 协议），便于排查哪条客户端链路有问题。</div>
+  </div>
+
+  <!-- 联系：只留发邮件 -->
+  <div class="card r" style="animation-delay:.38s">
+    <div class="ct"><span class="num">✉</span>联系与反馈</div>
+    <div class="design-note" style="color:var(--text)">使用中有问题、想要新功能，或需要定制专属模型网关？欢迎随时联系，通常 1 天内回复。<a class="maillink" href="mailto:33441998@qq.com">发邮件</a></div>
+  </div>
+
+  <div class="foot">🔒 本地运行 · 密钥仅存本机 ~/.modelhub/keys.json，不会上传</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// 兼容两种打开方式：同源(http)直接用相对路径；file:// 直接双击则指向本机代理
+const BASE = (location.protocol === 'file:') ? 'http://127.0.0.1:4000' : '';
+const AUTH = 'sk-local-proxy';
+const STOP_URL = BASE + '/api/stop';
+
+// HTML 实体转义：防止 API 返回字段中的 < > & " ' 被当作标记执行（修复审计 M1 XSS）
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+async function api(path, opts){
+  const res = await fetch(BASE + path, opts);
+  let data = null;
+  try { data = await res.json(); } catch(e){}
+  return { ok: res.ok, status: res.status, data };
+}
+
+let PROVIDERS = [];          // 来自 /api/models
+let CURRENT = '';            // 当前激活模型
+let activeClient = 'cc';
+let LOGS = [];               // 来自 /api/logs
+let logVisible = 50;
+let connected = false;
+
+function badge(r){ return r==='cn'?'<span class="badge cn">国内</span>':'<span class="badge intl">国际</span>'; }
+function clientName(id){ return id==='cc'?'Claude Code':'Codex'; }
+function anyKeyConfigured(){ return PROVIDERS.some(p=>p.configured); }
+function fmtTime(t){
+  const d = new Date(t);
+  const p = n => String(n).padStart(2,'0');
+  return p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+}
+
+// ---- toast（info / warn / err） ----
+function toast(msg, kind){
+  const el=document.getElementById('toast');
+  if(el._t) clearTimeout(el._t);
+  el.textContent=msg;
+  el.className='toast show'+(kind?(' toast-'+kind):'');
+  el._t=setTimeout(()=>{ el.className='toast'; }, kind==='err'?2800:kind==='warn'?2400:1800);
+}
+
+// ---------- 环境自检 ----------
+async function refreshEnv(){
+  const r = await api('/api/env');
+  if(!r.ok){ setConnected(false); return; }
+  setConnected(true);
+  const e = r.data;
+  const items=[
+    {l:'Node.js', ok:e.node.ok, val:e.node.version, msg:''},
+    {l:'端口 4000', ok:e.port.ok, val:':4000', msg:'点击运行自检', click:'selftest'},
+    {l:'Claude 配置', ok:e.claudeSettings.exists, val:e.claudeSettings.exists?'已接入':'未接入', msg:''},
+    {l:'Codex 配置', ok:e.codexConfig.exists, val:e.codexConfig.exists?'已接入':'未接入', msg:''},
+    {l:'已配密钥', ok:true, val:e.providersConfigured+'/'+e.totalProviders, msg:''},
+  ];
+  document.getElementById('envGrid').innerHTML = items.map((it,i)=>{
+    const cls=it.ok?'ok':'bad';
+    const click = it.click ? ' style="cursor:pointer" data-act="'+it.click+'"' : '';
+    return '<div class="tile"'+click+'><div class="l">'+esc(it.l)+'</div><div class="v"><span class="dot '+cls+'"></span>'+esc(it.val)+'</div>'+(it.msg?'<div class="m">'+esc(it.msg)+'</div>':'')+'</div>';
+  }).join('');
+  const st1=document.getElementById('ccState');
+  st1.className='pathstate '+(e.claudeSettings.exists?'exist':'miss');
+  st1.textContent=e.claudeSettings.exists?'已存在':'缺失';
+  const st2=document.getElementById('cxState');
+  st2.className='pathstate '+(e.codexConfig.exists?'exist':'miss');
+  st2.textContent=e.codexConfig.exists?'已存在':'缺失';
+  // 端口 tile → 自检
+  const portTile=document.querySelector('.tile[data-act="selftest"]');
+  if(portTile) portTile.addEventListener('click', runSelfTest);
+}
+
+async function runSelfTest(){
+  toast('正在自检代理链路…');
+  const r = await api('/api/selftest');
+  if(!r.ok){ toast('自检失败：无法连接代理','err'); return; }
+  if(r.data && r.data.ok){ toast('✓ 自检通过：Anthropic→OpenAI 转换、tool_use 回写均正常'); }
+  else { toast('自检未通过：'+(r.data.error||'链路异常'),'err'); }
+}
+
+function setConnected(v){
+  connected = v;
+  const dot=document.getElementById('connDot');
+  dot.className='conn'+(v?' ok':'');
+  dot.title = v?'代理已连接':'代理未连接（请先启动 ModelHub）';
+}
+
+// ---------- 卡1：密钥列表（真实） ----------
+async function refreshModels(){
+  const r = await api('/api/models');
+  if(!r.ok) return;
+  PROVIDERS = r.data.providers.filter(p=>!p.internal);
+  CURRENT = r.data.current;
+  renderKeyList();
+  renderClients();
+}
+function renderKeyList(){
+  const list=document.getElementById('keyList');
+  if(!PROVIDERS.length){ list.innerHTML='<div class="design-note">未加载到供应商配置</div>'; return; }
+  list.innerHTML=PROVIDERS.map(p=>{
+    const st=p.configured?'已保存':'未配置';
+    const eye=p.configured?'<button class="eye" data-eye="'+esc(p.name)+'" title="显示 / 隐藏密钥">👁</button>':'';
+    return '<div class="krow" data-prov="'+esc(p.name)+'">'
+      +'<div class="kn"><span class="ico">'+esc(p.icon)+'</span><span class="kn-t">'+esc(p.display)+'</span>'+badge(p.region)+'</div>'
+      +'<input type="password" data-inp="'+esc(p.name)+'" placeholder="sk-..." value="" />'
+      +eye
+      +'<div class="st" data-st="'+esc(p.name)+'">'+esc(st)+'</div>'
+      +'<button class="btn ghost" data-save="'+esc(p.name)+'">'+(p.configured?'更新':'保存')+'</button>'
+      +'</div>';
+  }).join('');
+  list.querySelectorAll('.eye').forEach(b=>b.addEventListener('click',()=>{
+    const inp=list.querySelector('input[data-inp="'+b.dataset.eye+'"]');
+    inp.type=inp.type==='password'?'text':'password';
+  }));
+  list.querySelectorAll('button[data-save]').forEach(b=>b.addEventListener('click',async()=>{
+    const p=PROVIDERS.find(x=>x.name===b.dataset.save);
+    const inp=list.querySelector('input[data-inp="'+p.name+'"]');
+    const v=inp.value.trim();
+    const st=list.querySelector('.st[data-st="'+p.name+'"]');
+    if(!v){ st.textContent='未填'; toast('请先填写 '+p.display+' 的密钥','warn'); inp.focus(); return; }
+    if(v.length<8){ st.textContent='过短'; toast(p.display+' 密钥长度不足（至少 8 位），请检查后重试','warn'); inp.focus(); return; }
+    const r=await api('/api/keys',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({provider:p.name,key:v})});
+    if(r.ok && r.data.ok){
+      p.configured=true; st.textContent='已保存';
+      toast('已'+(b.textContent==='更新'?'更新':'保存')+' '+p.display+' 密钥 ✓ 现在可选它的模型');
+      renderKeyList(); renderClients(); refreshEnv();
+    } else { toast('保存失败：'+(r.data&&r.data.error||'未知错误'),'err'); }
+  }));
+}
+
+// ---------- 卡2：客户端 + 绑定模型 ----------
+function renderClients(){
+  const wrap=document.getElementById('clientWrap');
+  const CLIENTS=[
+    {id:'cc', icon:'🤖', name:'Claude Code', proto:'Anthropic Messages', connected: connected},
+    {id:'cx', icon:'⚡', name:'Codex', proto:'OpenAI Responses', connected: connected},
+  ];
+  wrap.innerHTML=CLIENTS.map(c=>{
+    const sel=activeClient===c.id?' sel':'';
+    const tag=c.connected?'<span class="tag on">● 已接入</span>':'<span class="tag off">○ 未接入</span>';
+    const dot=c.connected?'ok':'bad';
+    const sub=c.connected?'已指向 :4000':'未指向网关';
+    const placeholder = anyKeyConfigured() ? '— 请选择模型 —' : '— 请先配置密钥 —';
+    const opts='<option value="" '+(CURRENT?'':'selected')+' disabled>'+esc(placeholder)+'</option>'+
+      PROVIDERS.map(p=>{
+        const dis=p.configured?'':'disabled';
+        const lbl=p.display+(p.configured?'':'（未配置密钥）');
+        return '<optgroup label="'+esc(lbl)+'">'+p.models.map(m=>'<option value="'+esc(m.alias)+'" '+dis+(CURRENT===m.alias?' selected':'')+'>'+esc(m.alias)+'</option>').join('')+'</optgroup>';
+      }).join('');
+    return '<div class="client'+sel+'" data-client="'+c.id+'">'+tag+'<div class="ch"><div class="ci">'+esc(c.icon)+'</div><div><div class="cn">'+esc(c.name)+'</div><div class="cs"><span class="dot '+dot+'"></span><span style="color:var(--muted)">'+esc(sub)+'</span></div></div></div><div class="crow"><span class="k">协议</span><span class="vv">'+esc(c.proto)+'</span></div><div class="crow"><span class="k">绑定模型</span><select class="modelselect" data-client="'+c.id+'">'+opts+'</select></div><div class="selbar"></div></div>';
+  }).join('');
+  wrap.querySelectorAll('.client').forEach(el=>el.addEventListener('click',(e)=>{
+    if(e.target.closest('.modelselect')) return;
+    setActive(el.dataset.client);
+  }));
+  wrap.querySelectorAll('.modelselect').forEach(s=>s.addEventListener('change',async()=>{
+    if(!s.value) return;
+    const r=await api('/api/switch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:s.value})});
+    if(r.ok && r.data.ok){
+      CURRENT=r.data.current;
+      toast('已为 '+clientName(s.dataset.client)+' 绑定 '+s.value);
+      renderClients();
+    } else { toast('切换失败：'+(r.data&&r.data.error||'未知错误'),'err'); }
+  }));
+}
+function setActive(id){ activeClient=id; renderClients(); }
+
+// ---------- 卡3：写入配置 ----------
+async function writeConfig(tool){
+  const model=CURRENT||'deepseek-chat';
+  const r=await api('/api/write-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tool,model})});
+  if(r.ok && r.data.ok){
+    toast('已写入 '+(tool==='cc'?'~/.claude/settings.json':'~/.codex/config.toml')+' ✓ 已自动备份 .bak，重启客户端生效');
+    refreshEnv();
+  } else if(r.status===409){
+    toast('⚠ '+(r.data.message||'文件缺失'),'warn');
+  } else {
+    toast('写入失败：'+(r.data&&r.data.error||r.data&&r.data.message||'未知错误'),'err');
+  }
+}
+async function restoreConfig(tool){
+  const r=await api('/api/restore-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tool})});
+  if(r.ok && r.data.ok){ toast('已恢复最初配置 '+(tool==='cc'?'settings.json':'config.toml')+'（来自 .bak）'); refreshEnv(); }
+  else if(r.status===409){ toast('无需恢复：从未写入过该配置','warn'); }
+  else { toast('恢复失败：'+(r.data&&r.data.error||'未知错误'),'err'); }
+}
+function copyText(txt,label){
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(()=>toast('已复制 '+label+' ✓ 可手动粘贴'),()=>toast('复制失败','err')); }
+  else { toast('当前环境不支持自动复制，请手动选择','warn'); }
+}
+
+// ---------- 卡4：活动日志 ----------
+async function refreshLogs(){
+  const r = await api('/api/logs');
+  if(!r.ok) return;
+  LOGS = r.data.logs || [];
+  logVisible = Math.min(50, LOGS.length);
+  renderLog();
+}
+function renderLog(){
+  const el=document.getElementById('logList');
+  el.innerHTML=LOGS.slice(0,logVisible).map(r=>{
+    const src = r.type==='message' ? 'cc' : 'api';
+    const srcName = r.type==='message' ? 'Claude' : 'API';
+    const ok = r.status!=='error';
+    return '<div class="logrow"><span class="lt">'+fmtTime(r.t)+'</span><span class="lm">'+esc(r.model||'-')+'</span><span class="lsrc '+src+'">'+srcName+'</span><span class="lp">'+esc(r.provider||'-')+'</span><span class="ls '+(ok?'ok':'err')+'">'+(ok?'OK':'ERR')+'</span><span class="lms">'+(r.ms||0)+'ms</span></div>';
+  }).join('');
+  document.getElementById('logCount').textContent=LOGS.length+' 条（显示最近 '+Math.min(logVisible,LOGS.length)+' 条）';
+  const more=document.getElementById('logMore');
+  const remain=LOGS.length-logVisible;
+  if(remain>0){ more.style.display='inline-block'; more.textContent='加载更多（还有 '+remain+' 条）'; }
+  else { more.style.display='none'; }
+}
+
+// ---------- 初始化 & 轮询 ----------
+function bindStatic(){
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');
+    const which=t.dataset.tab;
+    document.getElementById('pane-cc').style.display=which==='cc'?'block':'none';
+    document.getElementById('pane-cx').style.display=which==='cx'?'block':'none';
+  }));
+  document.getElementById('ccCopy').addEventListener('click',()=>copyText(document.getElementById('ccCode').textContent,'settings.json'));
+  document.getElementById('cxCopy').addEventListener('click',()=>copyText(document.getElementById('cxCode').textContent,'config.toml'));
+  document.getElementById('ccWrite').addEventListener('click',()=>writeConfig('cc'));
+  document.getElementById('cxWrite').addEventListener('click',()=>writeConfig('cx'));
+  document.getElementById('ccRestore').addEventListener('click',e=>{e.preventDefault();restoreConfig('cc');});
+  document.getElementById('cxRestore').addEventListener('click',e=>{e.preventDefault();restoreConfig('cx');});
+  document.getElementById('envHint').addEventListener('click',runSelfTest);
+  document.getElementById('logMore').addEventListener('click',()=>{ logVisible=Math.min(logVisible+50,LOGS.length); renderLog(); });
+  document.getElementById('themeBtn').addEventListener('click',()=>{
+    const cur=document.documentElement.getAttribute('data-theme');
+    const next=cur==='dark'?null:'dark';
+    if(next) document.documentElement.setAttribute('data-theme',next);
+    else document.documentElement.removeAttribute('data-theme');
+    document.getElementById('themeBtn').textContent=next==='dark'?'☀️':'🌙';
+  });
+  document.getElementById('langBtn').addEventListener('click',()=>{ const b=document.getElementById('langBtn'); b.textContent=b.textContent==='EN'?'中':'EN'; });
+}
+async function poll(){
+  await refreshEnv();
+  await refreshModels();
+  await refreshLogs();
+}
+bindStatic();
+poll();
+setInterval(poll, 4000);   // 4 秒轮询，保持状态/日志实时
+</script>
+</body>
+</html>
