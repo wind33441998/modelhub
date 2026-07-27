@@ -29,6 +29,7 @@ REPLACEMENTS = [
     ("path.join(__dirname, '..', 'upstream_dump.log')", "path.join(__dirname, 'upstream_dump.log')"),
     ("path.join(__dirname, '..', 'modelhub.stop')", "path.join(__dirname, 'modelhub.stop')"),
     ("path.join(__dirname, '..', 'proxy_crash.log')", "path.join(__dirname, 'proxy_crash.log')"),
+    ("path.join(__dirname, '..', 'proxy_stdout.log')", "path.join(__dirname, 'proxy_stdout.log')"),
 ]
 
 def sync_proxy():
