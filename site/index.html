@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en" style="background:#07090e">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ModelHub – Run Claude Code & Codex on DeepSeek, Qwen, Kimi, GLM | 97% Cheaper</title>
+<meta name="description" content="Claude Code & Codex proxy supporting DeepSeek, Qwen, Kimi, GLM, Gemini, Groq. Replace expensive Anthropic/OpenAI API. One-click EXE setup. $29 one-time license.">
+<meta name="keywords" content="claude code proxy, claude code deepseek, codex proxy, codex deepseek, cheaper than claude api, claude code alternative, use deepseek with claude code, claude code multiple models, codex model provider">
+<meta name="theme-color" content="#07090e">
+<meta property="og:title" content="ModelHub – Run Claude Code & Codex on Any Model. Pay Once, Save 97%.">
+<meta property="og:description" content="One-click local proxy for Claude Code & Codex. Supports DeepSeek, Qwen, Kimi, GLM, Gemini, Groq. $29 one-time.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Geist+Mono:wght@400;500;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090e;--bg2:#0c101a;--card:#111723;--card-hover:#161e2e;--border:#1e2740;--text:#edf2f7;--text-dim:#8896b0;--green:#10b981;--green-dim:#059669;--green-glow:rgba(16,185,129,.25);--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;--disp:"Bricolage Grotesque",system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,monospace;--body:"DM Sans",system-ui,sans-serif;--maxw:1120px;--r:16px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+::selection{background:var(--green);color:#000}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.wrap{position:relative;z-index:1}
+nav{position:fixed;top:0;width:100%;z-index:100;padding:16px 0;background:rgba(7,9,14,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(30,39,64,.4)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:var(--disp);font-weight:800;font-size:20px;display:flex;align-items:center;gap:10px}
+.logo span{background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{color:var(--text-dim);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.btn-nav{background:var(--green);color:#000!important;padding:8px 20px;border-radius:8px;font-weight:700!important;font-size:13px!important}
+.btn-nav:hover{box-shadow:0 0 24px var(--green-glow)!important}
+.r{opacity:0;transform:translateY(24px);animation:rise .7s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}.d4{animation-delay:.4s}.d5{animation-delay:.5s}
+.hero{padding:140px 0 80px;text-align:center;position:relative}
+.hero::after{content:"";position:absolute;top:-20%;left:50%;translate:-50% 0;width:800px;height:800px;background:radial-gradient(circle,rgba(16,185,129,.06),transparent 60%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:100px;padding:6px 16px 6px 8px;font-size:12px;color:var(--green);font-weight:600;margin-bottom:24px}
+.hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-family:var(--disp);font-size:clamp(40px,6.5vw,72px);font-weight:800;line-height:1.08;letter-spacing:-1.5px;margin-bottom:20px}
+.hero h1 .grad{background:linear-gradient(135deg,#edf2f7 30%,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:clamp(16px,2vw,20px);color:var(--text-dim);max-width:680px;margin:0 auto 36px;line-height:1.7}
+.hero-cta{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--green);color:#000;font-weight:700;padding:14px 32px;border-radius:10px;text-decoration:none;font-size:15px;transition:all .3s}
+.btn-primary:hover{box-shadow:0 0 32px var(--green-glow);transform:translateY(-2px)}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);color:var(--text);font-weight:600;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:15px;border:1px solid var(--border);transition:all .3s}
+.btn-secondary:hover{background:rgba(255,255,255,.1);border-color:var(--text-dim)}
+.hero-stats{display:flex;justify-content:center;gap:40px;margin-top:48px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat .num{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--green)}
+.hero-stat .lbl{font-size:12px;color:var(--text-dim);margin-top:4px}
+.section{padding:80px 0}
+.section-label{font-family:var(--mono);font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:2px;font-weight:500;margin-bottom:8px}
+.section-title{font-family:var(--disp);font-size:clamp(28px,3.5vw,40px);font-weight:800;letter-spacing:-.5px;margin-bottom:16px}
+.section-sub{color:var(--text-dim);font-size:16px;max-width:600px;margin-bottom:40px}
+.cost-table-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border);background:var(--card)}
+.cost-table{width:100%;border-collapse:collapse;font-size:13px}
+.cost-table th{background:var(--bg2);padding:14px;text-align:left;font-weight:600;border-bottom:1px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.cost-table td{padding:12px 14px;border-bottom:1px solid var(--border)}
+.cost-table tr:hover td{background:var(--card-hover)}
+.cost-table .save-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700}
+.save-high{background:rgba(16,185,129,.15);color:var(--green)}
+.save-mid{background:rgba(59,130,246,.15);color:var(--blue)}
+.cost-table .row-mh{background:rgba(16,185,129,.04)}
+.cost-table .price{font-family:var(--mono);font-size:13px;font-weight:500}
+.cost-table .sep td{height:8px;background:transparent;border-bottom:none;border-top:1px solid var(--border)}
+.savings-bar-wrap{margin-top:32px;display:grid;gap:12px}
+.savings-bar{padding:16px 20px;border-radius:var(--r);border:1px solid var(--border);background:var(--card);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.savings-bar .name{font-size:14px;font-weight:600}
+.savings-bar .cost{font-family:var(--mono);font-size:16px;font-weight:700}
+.savings-bar .bar{flex:1;min-width:120px;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden}
+.savings-bar .bar-fill{height:100%;border-radius:3px}
+.savings-bar.claude .bar-fill{width:100%;background:var(--red)}
+.savings-bar.gpt .bar-fill{width:65%;background:var(--amber)}
+.savings-bar.mh .bar-fill{width:4%;background:var(--green)}
+.savings-bar.mh{border-color:rgba(16,185,129,.25)}
+.savings-bar .saved{color:var(--green);font-family:var(--mono);font-weight:700}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+@media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}}
+.pain-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;transition:all .3s}
+.pain-card:hover{border-color:var(--green);transform:translateY(-4px)}
+.pain-card .icon{font-size:24px;margin-bottom:12px}
+.pain-card h4{font-size:14px;font-weight:700;margin-bottom:6px}
+.pain-card p{font-size:13px;color:var(--text-dim);line-height:1.6}
+.feature-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;text-align:center;transition:all .3s}
+.feature-card:hover{border-color:var(--blue);transform:translateY(-4px)}
+.feature-card .ico{font-size:32px;margin-bottom:12px}
+.feature-card h4{font-size:15px;font-weight:700;margin-bottom:6px}
+.feature-card p{font-size:13px;color:var(--text-dim);line-height:1.6}
+.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:900px){.pricing-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.pricing-grid{grid-template-columns:1fr}}
+.pricing-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;transition:all .3s;position:relative}
+.pricing-card:hover{transform:translateY(-4px)}
+.pricing-card.featured{border-color:var(--green);box-shadow:0 0 32px var(--green-glow)}
+.pricing-card.featured::before{content:"Best Value";position:absolute;top:-12px;left:50%;translate:-50% 0;background:var(--green);color:#000;font-size:11px;font-weight:700;padding:4px 14px;border-radius:100px}
+.pricing-card .tier{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:4px}
+.pricing-card .price{font-family:var(--disp);font-size:36px;font-weight:800;margin-bottom:4px}
+.pricing-card .price-sub{font-size:12px;color:var(--text-dim);margin-bottom:16px}
+.pricing-card ul{list-style:none;padding:0;flex:1}
+.pricing-card li{padding:8px 0;font-size:13px;border-bottom:1px solid var(--border);display:flex;gap:8px}
+.pricing-card li:last-child{border-bottom:none}
+.pricing-card li .ck{color:var(--green);font-weight:700}
+.pricing-card li .no{color:var(--text-dim)}
+.pricing-card .btn-pricing{display:block;text-align:center;margin-top:16px;padding:12px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;transition:all .3s}
+.pricing-card .btn-pricing.primary{background:var(--green);color:#000}
+.pricing-card .btn-pricing.sec{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
+.pricing-card .trial-badge{text-align:center;font-size:12px;color:var(--text-dim);margin-top:12px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+@media(max-width:768px){.steps{grid-template-columns:1fr}}
+.step{text-align:center;padding:32px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--r)}
+.step .num{width:40px;height:40px;border-radius:50%;background:var(--green);color:#000;font-weight:800;font-size:18px;display:grid;place-items:center;margin:0 auto 16px;font-family:var(--mono)}
+.step h4{font-size:16px;font-weight:700;margin-bottom:8px}
+.step p{font-size:13px;color:var(--text-dim)}
+.referral{text-align:center;background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(59,130,246,.08));border:1px solid rgba(16,185,129,.2);border-radius:var(--r);padding:40px}
+.referral h3{font-family:var(--disp);font-size:24px;font-weight:800;margin-bottom:12px}
+.referral p{color:var(--text-dim);max-width:500px;margin:0 auto 24px}
+.referral-box{display:inline-flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-family:var(--mono);font-size:13px;color:var(--text-dim)}
+.referral-box .copy{background:var(--green);color:#000;border:none;padding:6px 16px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer}
+footer{border-top:1px solid var(--border);padding:40px 0;margin-top:40px}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
+.menu-toggle{display:none;background:none;border:none;color:var(--text);font-size:24px;cursor:pointer}
+@media(max-width:768px){
+  .nav-links{display:none;position:absolute;top:60px;left:0;right:0;background:var(--bg);flex-direction:column;padding:20px;border-bottom:1px solid var(--border);gap:16px}
+  .nav-links.open{display:flex}
+  .menu-toggle{display:block}
+}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+<div class="logo"><span>◆</span> ModelHub</div>
+<button class="menu-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
+<div class="nav-links"><a href="#compare">Savings</a><a href="#pricing">Pricing</a><a href="#features">Features</a><a href="#how">How It Works</a><a href="#" class="btn-nav">Get Started →</a></div>
+</div></nav>
+
+<section class="hero">
+<div class="wrap">
+<div class="r d1 hero-badge"><span class="dot"></span> Now supporting Claude Code & Codex</div>
+<h1 class="r d2">Run <span class="grad">Claude Code</span> & <span class="grad">Codex</span><br>on Any Model. <span style="background:linear-gradient(135deg,var(--green),var(--green-dim));-webkit-background-clip:text;-webkit-text-fill-color:transparent">97% Cheaper.</span></h1>
+<p class="r d3">One-click local proxy that routes Claude Code and Codex to DeepSeek, Qwen, Kimi, GLM, Gemini, Groq — at a fraction of the cost. You bring your API keys. We make it simple.</p>
+<div class="hero-cta r d4"><a href="#pricing" class="btn-primary">Download Free Trial →</a><a href="#compare" class="btn-secondary">See Cost Comparison ↓</a></div>
+<div class="hero-stats r d5">
+<div class="hero-stat"><div class="num">2 min</div><div class="lbl">Setup Time</div></div>
+<div class="hero-stat"><div class="num">24</div><div class="lbl">Models Supported</div></div>
+<div class="hero-stat"><div class="num">99%</div><div class="lbl">vs OpenAI/Anthropic</div></div>
+<div class="hero-stat"><div class="num">$29</div><div class="lbl">One-Time License</div></div>
+</div>
+</div>
+</section>
+
+<section class="section" id="compare">
+<div class="wrap">
+<div class="r"><span class="section-label">💰 Cost Comparison</span></div>
+<h2 class="section-title r d2">How Much Can You Save with ModelHub?</h2>
+<p class="section-sub r d3">Real API costs per million tokens. ModelHub adds zero markup — you pay only your provider's rate.</p>
+<div class="cost-table-wrap r d4">
+<table class="cost-table">
+<thead><tr><th>Provider</th><th>Model</th><th>Input $/1M</th><th>Output $/1M</th><th>Savings</th></tr></thead>
+<tbody>
+<tr><td>Anthropic</td><td>Claude Opus 4.8</td><td class="price">$5.00</td><td class="price">$25.00</td><td>—</td></tr>
+<tr><td>Anthropic</td><td>Claude Sonnet 4.6</td><td class="price">$3.00</td><td class="price">$15.00</td><td>—</td></tr>
+<tr><td>OpenAI</td><td>GPT-5.5</td><td class="price">$5.00</td><td class="price">$30.00</td><td>—</td></tr>
+<tr><td>OpenAI</td><td>GPT-4o</td><td class="price">$10.00</td><td class="price">$30.00</td><td>—</td></tr>
+<tr><td>Google</td><td>Gemini 2.5 Pro</td><td class="price">$1.25</td><td class="price">$10.00</td><td>—</td></tr>
+<tr class="sep"><td colspan="5"></td></tr>
+<tr class="row-mh"><td><strong>ModelHub + DeepSeek</strong></td><td>deepseek-v4-flash</td><td class="price" style="color:#10b981">$0.14</td><td class="price" style="color:#10b981">$0.28</td><td><span class="save-badge save-high">Save 99%</span></td></tr>
+<tr class="row-mh"><td><strong>ModelHub + DeepSeek</strong></td><td>deepseek-v4-pro</td><td class="price" style="color:#10b981">$0.44</td><td class="price" style="color:#10b981">$0.87</td><td><span class="save-badge save-high">Save 98%</span></td></tr>
+<tr class="row-mh"><td><strong>ModelHub + Kimi</strong></td><td>kimi-k2.5</td><td class="price">$0.60</td><td class="price">$3.00</td><td><span class="save-badge save-mid">Save 88%</span></td></tr>
+<tr class="row-mh"><td><strong>ModelHub + GLM</strong></td><td>glm-4-plus</td><td class="price" style="color:#10b981">$0.50</td><td class="price" style="color:#10b981">$0.80</td><td><span class="save-badge save-high">Save 97%</span></td></tr>
+<tr class="row-mh"><td><strong>ModelHub + Qwen</strong></td><td>qwen-max</td><td class="price">$0.80</td><td class="price">$1.20</td><td><span class="save-badge save-high">Save 96%</span></td></tr>
+<tr class="row-mh"><td><strong>ModelHub + Gemini</strong></td><td>gemini-2.5-flash</td><td class="price" style="color:#10b981">$0.15</td><td class="price" style="color:#10b981">$0.60</td><td><span class="save-badge save-high">Save 98%</span></td></tr>
+<tr class="row-mh"><td><strong>ModelHub + Groq</strong></td><td>groq-llama-70b</td><td class="price">$0.59</td><td class="price">$0.79</td><td><span class="save-badge save-high">Save 97%</span></td></tr>
+<tr class="row-mh"><td><strong>ModelHub + SiliconFlow</strong></td><td>sf-deepseek-v3</td><td class="price" style="color:#10b981">$0.27</td><td class="price" style="color:#10b981">$0.55</td><td><span class="save-badge save-high">Save 98%</span></td></tr>
+</tbody></table></div>
+<div class="savings-bar-wrap r d5">
+<div class="savings-bar claude"><span class="name">Claude Opus 4.8 — Monthly</span><span class="cost" style="color:#ef4444">$900/mo</span><div class="bar"><div class="bar-fill"></div></div><span class="saved"></span></div>
+<div class="savings-bar gpt"><span class="name">GPT-5.5 — Monthly</span><span class="cost" style="color:#f59e0b">$1,050/mo</span><div class="bar"><div class="bar-fill"></div></div><span class="saved"></span></div>
+<div class="savings-bar mh"><span class="name" style="color:#10b981">ModelHub + DeepSeek Flash</span><span class="cost" style="color:#10b981">$12.60/mo</span><div class="bar"><div class="bar-fill"></div></div><span class="saved">Save $10,649/yr</span></div>
+</div>
+</div>
+</section>
+
+<section class="section" style="background:#0c101a">
+<div class="wrap">
+<div class="r"><span class="section-label">Why Developers Switch</span></div>
+<h2 class="section-title r d2">Why Claude Code & Codex Users Choose ModelHub</h2>
+<p class="section-sub r d3">Real problems developers search for — solved by ModelHub.</p>
+<div class="grid-3 r d4">
+<div class="pain-card"><div class="icon">💰</div><h4>Claude Code Too Expensive</h4><p>Anthropic API costs add up fast. Route Claude Code to DeepSeek and cut your bill by 99%. Same tool use, same workflow.</p></div>
+<div class="pain-card"><div class="icon">🔌</div><h4>Need a Claude Code Proxy</h4><p>Set up a local proxy for Claude Code in 2 minutes. No Python, no Docker. Just download the EXE and run.</p></div>
+<div class="pain-card"><div class="icon">🌍</div><h4>Claude Code API Banned</h4><p>Region restrictions or billing issues? ModelHub runs locally with your own API keys. No more account problems.</p></div>
+<div class="pain-card"><div class="icon">🔀</div><h4>Want Multiple Models</h4><p>Switch between DeepSeek, Qwen, Kimi, GLM, Gemini, Groq without restarting. One panel to rule them all.</p></div>
+<div class="pain-card"><div class="icon">🔒</div><h4>Self-Hosted Proxy</h4><p>Your code and API keys never leave your machine. Privacy-first architecture. Data doesn't cross third-party servers.</p></div>
+<div class="pain-card"><div class="icon">⚡</div><h4>Codex Needs Cheap Models</h4><p>Codex users: route to DeepSeek, Qwen, or GLM via ModelHub. Full Responses API + streaming included.</p></div>
+</div>
+</div>
+</section>
+
+<section class="section" id="features">
+<div class="wrap">
+<div class="r"><span class="section-label">Features</span></div>
+<h2 class="section-title r d2">Everything You Need in One Proxy</h2>
+<div class="grid-3 r d4">
+<div class="feature-card"><div class="ico">🚀</div><h4>Zero Setup</h4><p>Download the 37MB EXE and double-click. No Python, no npm, no Docker. It just works.</p></div>
+<div class="feature-card"><div class="ico">🔀</div><h4>8 Providers, 24 Models</h4><p>DeepSeek, Qwen, GLM, Kimi, Gemini, Groq, SiliconFlow, OpenRouter.</p></div>
+<div class="feature-card"><div class="ico">🔒</div><h4>Privacy First</h4><p>Everything runs on your machine. API keys never leave. Zero data leakage.</p></div>
+<div class="feature-card"><div class="ico">⚡</div><h4>Runtime Switching</h4><p>Switch between 24 models without restarting Claude Code or Codex.</p></div>
+<div class="feature-card"><div class="ico">🛠️</div><h4>Full Tool Use</h4><p>File read/write, command execution — all tool calls work perfectly.</p></div>
+<div class="feature-card"><div class="ico">🌐</div><h4>Built-in Web UI</h4><p>Full management panel at localhost:4000. Manage keys, switch models, view logs.</p></div>
+</div>
+</div>
+</section>
+
+<section class="section" id="pricing" style="background:#0c101a">
+<div class="wrap">
+<div class="r"><span class="section-label">Pricing</span></div>
+<h2 class="section-title r d2">Simple Pricing. One License, All Features.</h2>
+<p class="section-sub r d3">No hidden fees. No token markups. No subscriptions required.</p>
+<div class="pricing-grid r d4">
+<div class="pricing-card"><div class="tier">Trial</div><div class="price">$0</div><div class="price-sub">7 days free</div>
+<ul><li><span class="ck">✓</span> 1 provider (DeepSeek)</li><li><span class="ck">✓</span> 4 models</li><li><span class="no">✗</span> 1 device</li><li><span class="ck">✓</span> Full management UI</li></ul>
+<a href="#" class="btn-pricing sec">Free Trial →</a><div class="trial-badge">No credit card needed</div></div>
+
+<div class="pricing-card"><div class="tier">Monthly</div><div class="price">$3</div><div class="price-sub">per month</div>
+<ul><li><span class="ck">✓</span> All 8 providers</li><li><span class="ck">✓</span> All 24 models</li><li><span class="ck">✓</span> Up to 3 devices</li><li><span class="ck">✓</span> Email support</li></ul>
+<a href="#" class="btn-pricing sec">Subscribe $3 →</a></div>
+
+<div class="pricing-card featured"><div class="tier">Yearly</div><div class="price">$29</div><div class="price-sub">per year <span style="color:#10b981;font-size:11px">(Save 70%)</span></div>
+<ul><li><span class="ck">✓</span> All 8 providers</li><li><span class="ck">✓</span> All 24 models</li><li><span class="ck">✓</span> Up to 5 devices</li><li><span class="ck">✓</span> Unlimited logs</li></ul>
+<a href="#" class="btn-pricing primary">Buy $29 →</a><div class="trial-badge">Less than 2 hours of Claude API cost</div></div>
+
+<div class="pricing-card"><div class="tier">Lifetime</div><div class="price">$69</div><div class="price-sub">one-time</div>
+<ul><li><span class="ck">✓</span> All 8 providers</li><li><span class="ck">✓</span> All 24 models</li><li><span class="ck">✓</span> Up to 10 devices</li><li><span class="ck">✓</span> Forever updates</li></ul>
+<a href="#" class="btn-pricing sec">Buy $69 →</a></div>
+</div>
+</div>
+</section>
+
+<section class="section" id="how">
+<div class="wrap">
+<div class="r"><span class="section-label">Getting Started</span></div>
+<h2 class="section-title r d2">From Zero to Saving in 2 Minutes</h2>
+<div class="steps r d4">
+<div class="step"><div class="num">1</div><h4>Download ModelHub</h4><p>37MB EXE. Double-click to run. No dependencies. Works on Windows 10+.</p></div>
+<div class="step"><div class="num">2</div><h4>Get an API Key</h4><p>Sign up at DeepSeek, SiliconFlow, or any supported provider. Paste your key into the web UI.</p></div>
+<div class="step"><div class="num">3</div><h4>Start Coding</h4><p>Claude Code or Codex connects automatically. Using DeepSeek for 97% less. Zero config.</p></div>
+</div>
+</div>
+</section>
+
+<section class="section" style="background:#0c101a">
+<div class="wrap">
+<div class="referral r"><h3>Love ModelHub? Share It. Earn Free Months.</h3>
+<p>Refer a friend. When they buy, you get free time. No limit — stack up.</p>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:600px;margin:24px auto;text-align:left">
+<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center">
+<div style="font-size:24px;font-weight:800;color:var(--green)">7 Days</div>
+<div style="font-size:12px;color:var(--text-dim)">Friend buys $3/mo</div>
+<div style="font-size:11px;color:var(--green);margin-top:4px">You get 7 days free</div>
+</div>
+<div style="background:var(--card);border:1px solid var(--green);border-radius:10px;padding:16px;text-align:center;box-shadow:0 0 16px var(--green-glow)">
+<div style="font-size:24px;font-weight:800;color:var(--green)">2 Months</div>
+<div style="font-size:12px;color:var(--text-dim)">Friend buys $29/yr</div>
+<div style="font-size:11px;color:var(--green);margin-top:4px">You get 2 months free</div>
+</div>
+<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center">
+<div style="font-size:24px;font-weight:800;color:var(--green)">6 Months</div>
+<div style="font-size:12px;color:var(--text-dim)">Friend buys $69 lifetime</div>
+<div style="font-size:11px;color:var(--green);margin-top:4px">You get 6 months free</div>
+</div>
+</div>
+<div class="referral-box"><span style="font-size:12px">claude-proxys.com/ref/YOUR_CODE</span><button class="copy" onclick="navigator.clipboard.writeText('claude-proxys.com/ref/YOUR_CODE').then(()=>this.textContent='Copied!')">Copy Link</button></div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="wrap">
+<div class="r"><span class="section-label">FAQ</span></div>
+<h2 class="section-title r d2">Common Questions</h2>
+<div style="display:grid;gap:12px;margin-top:32px">
+<div class="pain-card r"><h4>Do I need a server?</h4><p>No. ModelHub runs entirely on your local machine as a desktop EXE. Nothing leaves your computer.</p></div>
+<div class="pain-card r d2"><h4>Which providers are supported?</h4><p>DeepSeek, SiliconFlow, OpenRouter, Zhipu GLM, Kimi (Moonshot), Google Gemini, Alibaba Qwen, and Groq.</p></div>
+<div class="pain-card r d3"><h4>Does tool_use work?</h4><p>Yes. Full Claude Code tool use — file read/write, command execution, sub-agents — works perfectly.</p></div>
+<div class="pain-card r d4"><h4>What about Codex?</h4><p>ModelHub fully supports Codex via the Responses API. Same setup, same savings.</p></div>
+<div class="pain-card r d5"><h4>Can I try before buying?</h4><p>Yes. Download the free 7-day trial. No credit card required. Full features with DeepSeek enabled.</p></div>
+</div>
+</div>
+</section>
+
+<footer><div class="wrap">
+<p>&copy; 2026 ModelHub. <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Docs</a></p>
+<p style="font-size:12px">Not affiliated with Anthropic, OpenAI, or any API provider.</p>
+</div></footer>
+</body>
+</html>
+

@@ -12,3 +12,11 @@ turn_context.json
 upstream_dump.log
 # 安全审计报告（含漏洞路径和修复方案，不应进公开仓库）
 审计.md
+
+cloudflared.exe
+cloudflared.pid
+cloudflared*.txt
+tunnel_url.txt
+.credentials/
+tmp/
+server/data/
