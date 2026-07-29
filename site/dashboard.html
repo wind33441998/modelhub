@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" style="background:#07090e">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ModelHub Dashboard – License & Devices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Geist+Mono:wght@400;500;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090e;--bg2:#0c101a;--card:#111723;--card-hover:#161e2e;--border:#1e2740;--text:#edf2f7;--text-dim:#8896b0;--green:#10b981;--green-dim:#059669;--green-glow:rgba(16,185,129,.25);--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;--disp:"Bricolage Grotesque",system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,monospace;--body:"DM Sans",system-ui,sans-serif;--maxw:1100px;--r:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--body);background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+::selection{background:var(--green);color:#000}
+
+/* Header */
+.header{padding:24px 0;border-bottom:1px solid var(--border);margin-bottom:32px}
+.header .wrap{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.logo{font-family:var(--disp);font-weight:800;font-size:20px;display:flex;align-items:center;gap:8px}
+.logo span{background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header nav a{color:var(--text-dim);text-decoration:none;font-size:13px;margin-left:20px;transition:color .2s}
+.header nav a:hover{color:var(--text)}
+
+/* Grid */
+.grid{display:grid;gap:16px}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:1fr 1fr 1fr}
+.grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
+@media(max-width:768px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+/* Card */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;transition:border-color .2s}
+.card-title{font-family:var(--disp);font-size:13px;font-weight:700;letter-spacing:.3px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .ico{font-size:16px}
+
+/* Status badge */
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600}
+.badge-green{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.badge-amber{background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.2)}
+.badge-red{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.badge-gray{background:rgba(136,150,176,.1);color:var(--text-dim);border:1px solid var(--border)}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.dot-green{background:var(--green);box-shadow:0 0 6px var(--green-glow)}
+.dot-amber{background:var(--amber)}
+.dot-red{background:var(--red)}
+
+/* Stat box */
+.stat{text-align:center;padding:16px}
+.stat-num{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--green)}
+.stat-lbl{font-size:12px;color:var(--text-dim);margin-top:4px}
+
+/* License key display */
+.lic-key{font-family:var(--mono);font-size:14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0}
+.lic-key code{flex:1;word-break:break-all;font-size:13px}
+.lic-key .copy-btn{background:var(--green);color:#000;border:none;padding:6px 14px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;transition:box-shadow .2s}
+.lic-key .copy-btn:hover{box-shadow:0 0 12px var(--green-glow)}
+
+/* Input area */
+.input-group{display:flex;gap:8px;margin:8px 0;flex-wrap:wrap}
+.input-group input{flex:1;min-width:200px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .2s}
+.input-group input:focus{border-color:var(--green)}
+.input-group button{background:var(--green);color:#000;border:none;padding:10px 20px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;transition:box-shadow .2s;white-space:nowrap}
+.input-group button:hover{box-shadow:0 0 12px var(--green-glow)}
+.input-group button.sec{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
+.input-group button.sec:hover{background:rgba(255,255,255,.1)}
+
+/* Device list */
+.device{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.device:last-child{border-bottom:none}
+.device .name{font-weight:600}
+.device .time{color:var(--text-dim);font-size:12px}
+.device .badge{font-size:11px;padding:2px 8px}
+
+/* Referral */
+.ref-card{padding:16px;border:1px solid var(--border);border-radius:var(--r);text-align:center}
+.ref-card .days{font-family:var(--disp);font-size:32px;font-weight:800;color:var(--green)}
+.ref-card .lbl{font-size:12px;color:var(--text-dim);margin-top:4px}
+
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:10px 12px;text-align:left;font-weight:600;color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border)}
+
+/* Section */
+.section{margin-bottom:32px}
+.section-label{font-family:var(--mono);font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+
+/* Info rows */
+.info-row{display:flex;justify-content:space-between;padding:8px 0;font-size:13px;border-bottom:1px solid var(--border)}
+.info-row:last-child{border-bottom:none}
+.info-row .label{color:var(--text-dim)}
+.info-row .value{font-weight:600;font-family:var(--mono);font-size:12px}
+
+/* Toast */
+.toast{position:fixed;top:20px;right:20px;background:var(--green);color:#000;padding:12px 20px;border-radius:8px;font-weight:600;font-size:13px;z-index:999;opacity:0;transform:translateY(-10px);transition:all .3s;max-width:400px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.err{background:var(--red);color:#fff}
+.toast.warn{background:var(--amber);color:#000}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- Header -->
+<div class="header">
+<div class="wrap">
+<div class="logo"><span>◆</span>ModelHub <span style="font-size:13px;color:var(--text-dim);font-weight:400">/ Dashboard</span></div>
+<nav><a href="https://claude-proxys.com">Home</a><a href="https://gumroad.com/l/swpiot">Buy License</a><a href="#">Docs</a></nav>
+</div></div>
+
+<div class="wrap">
+
+<!-- License Overview -->
+<div class="section">
+<div class="section-label">License</div>
+<div class="grid grid-4" id="statsGrid">
+<div class="card stat"><div class="stat-num" id="statStatus">—</div><div class="stat-lbl">Status</div></div>
+<div class="card stat"><div class="stat-num" id="statTier">—</div><div class="stat-lbl">Tier</div></div>
+<div class="card stat"><div class="stat-num" id="statDays">—</div><div class="stat-lbl">Days Left</div></div>
+<div class="card stat"><div class="stat-num" id="statDevices">—</div><div class="stat-lbl">Devices</div></div>
+</div>
+</div>
+
+<!-- Main two columns -->
+<div class="grid grid-2" style="align-items:start">
+
+<!-- Left: License + Activate -->
+<div>
+<div class="card" style="margin-bottom:16px">
+<div class="card-title"><span class="ico">🔑</span> License Key</div>
+<div id="licenseDisplay">
+<div class="lic-key" id="licKeyDisplay" style="display:none">
+<code id="licKeyText">—</code>
+<button class="copy-btn" onclick="copyKey()">Copy</button>
+</div>
+<div id="licStatus" style="margin-top:8px"></div>
+</div>
+<div id="activateSection" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+<div class="input-group">
+<input type="text" id="licInput" placeholder="Enter license key (MHUB-XXXX-XXXX-XXXX)">
+<button onclick="activateLicense()">Activate</button>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="ico">💻</span> Devices <span id="deviceCount" style="font-size:12px;color:var(--text-dim);font-weight:400"></span></div>
+<div id="deviceList"><div style="font-size:13px;color:var(--text-dim);padding:8px 0">Connect a device to see it here.</div></div>
+</div>
+</div>
+
+<!-- Right: Referral + Info -->
+<div>
+<div class="card" style="margin-bottom:16px">
+<div class="card-title"><span class="ico">📣</span> Referral Program</div>
+<div class="grid grid-3" style="margin-bottom:16px">
+<div class="ref-card"><div class="days">7</div><div class="lbl">Friend buys $3/mo<br><span style="font-size:11px;color:var(--green)">You get 7d</span></div></div>
+<div class="ref-card" style="border-color:var(--green)"><div class="days">60</div><div class="lbl">Friend buys $29/yr<br><span style="font-size:11px;color:var(--green)">You get 60d</span></div></div>
+<div class="ref-card"><div class="days">180</div><div class="lbl">Friend buys $69/life<br><span style="font-size:11px;color:var(--green)">You get 180d</span></div></div>
+</div>
+<div class="input-group">
+<input type="text" id="refLink" readonly value="claude-proxys.com/ref/" placeholder="Activate license to get referral link" style="font-size:12px">
+<button class="sec" onclick="copyRef()">Copy</button>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="ico">ℹ️</span> Information</div>
+<div id="infoRows">
+<div class="info-row"><span class="label">License Server</span><span class="value" id="infoServer">Check connection</span></div>
+<div class="info-row"><span class="label">License Key File</span><span class="value" style="font-size:11px">~/.modelhub/license.key</span></div>
+<div class="info-row"><span class="label">Cache File</span><span class="value" style="font-size:11px">~/.modelhub/license.json</span></div>
+</div>
+</div>
+</div>
+
+</div><!-- end grid-2 -->
+
+<!-- Activity Log -->
+<div class="section" style="margin-top:8px">
+<div class="card">
+<div class="card-title"><span class="ico">📜</span> Activity Log</div>
+<table><thead><tr><th>Time</th><th>Event</th><th>Status</th></tr></thead>
+<tbody id="logBody"><tr><td colspan="3" style="text-align:center;color:var(--text-dim);font-size:13px;padding:20px">No activity yet</td></tr></tbody></table>
+</div>
+</div>
+
+</div><!-- end wrap -->
+
+<script>
+const LS = "http://127.0.0.1:3001";
+let currentLicense = null;
+
+function toast(msg, type) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast show" + (type === "err" ? " err" : type === "warn" ? " warn" : "");
+  setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+async function api(url, opts) {
+  try {
+    const r = await fetch(url, opts);
+    const d = await r.json();
+    return d;
+  } catch (e) {
+    return { error: e.message };
+  }
+}
+
+// Check license server connectivity
+async function checkServer() {
+  const r = await api(LS + "/api/health");
+  document.getElementById("infoServer").textContent = r.ok ? "Connected ✅" : "Disconnected ❌";
+  return r.ok;
+}
+
+// Load license status from local proxy
+async function loadLicense() {
+  const r = await api("/api/license/status");
+  if (r.ok === false && r.error && !r.licensed) {
+    // No license key saved
+    document.getElementById("statStatus").textContent = "Trial";
+    document.getElementById("statStatus").style.color = "var(--amber)";
+    document.getElementById("statTier").textContent = "Free";
+    document.getElementById("statDays").textContent = "7";
+    document.getElementById("statDevices").textContent = "1";
+    document.getElementById("licKeyDisplay").style.display = "none";
+    document.getElementById("licStatus").innerHTML = '<span class="badge badge-amber"><span class="dot dot-amber"></span> 7-Day Trial — DeepSeek only</span>';
+    return;
+  }
+  if (r.licensed) {
+    currentLicense = r;
+    document.getElementById("statStatus").innerHTML = '<span class="badge badge-green"><span class="dot dot-green"></span> Active</span>';
+    document.getElementById("statStatus").style.color = "";
+    document.getElementById("statTier").textContent = r.label || r.tier || "—";
+    document.getElementById("statTier").style.color = "var(--green)";
+    document.getElementById("statDays").textContent = r.remaining_days ?? "—";
+    document.getElementById("statDevices").textContent = (r.device_count ?? 0) + "/" + (r.devices ?? "—");
+    document.getElementById("licKeyDisplay").style.display = "flex";
+    
+    // Try to get the actual key from the file
+    // For now, show a masked version
+    document.getElementById("licStatus").innerHTML = '<span class="badge badge-green"><span class="dot dot-green"></span> Licensed</span>';
+    
+    // Generate referral link
+    document.getElementById("refLink").value = "claude-proxys.com/ref/" + (r.email ? r.email.split("@")[0].toUpperCase() : "USER") + "?discount=REF_YEARLY_10OFF";
+    
+    // Log the activity
+    addLog("License verified", "ok");
+    return;
+  }
+}
+
+function addLog(event, status) {
+  const body = document.getElementById("logBody");
+  const time = new Date().toLocaleTimeString();
+  const row = "<tr><td style='font-family:var(--mono);font-size:11px;color:var(--text-dim)'>" + time + "</td><td>" + event + "</td><td><span class='badge " + (status==="ok"?"badge-green":status==="err"?"badge-red":"badge-gray") + "' style='font-size:11px;padding:2px 8px'>" + status + "</span></td></tr>";
+  if (body.querySelector("td[colspan]")) body.innerHTML = row;
+  else body.innerHTML = row + body.innerHTML;
+}
+
+async function activateLicense() {
+  const key = document.getElementById("licInput").value.trim();
+  if (!key) { toast("Please enter a license key", "warn"); return; }
+  
+  const btn = document.querySelector("#activateSection button");
+  btn.disabled = true;
+  btn.textContent = "Activating...";
+  
+  const r = await api("/api/license/activate", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({key})
+  });
+  
+  btn.disabled = false;
+  btn.textContent = "Activate";
+  
+  if (r.licensed) {
+    toast("License activated! restart ModelHub to apply changes.");
+    await loadLicense();
+    addLog("License activated: " + (r.tier || ""), "ok");
+  } else {
+    toast(r.error || "Activation failed", "err");
+    addLog("License activation failed: " + (r.error || ""), "err");
+  }
+}
+
+function copyKey() {
+  const key = document.getElementById("licKeyText").textContent;
+  navigator.clipboard.writeText(key).then(() => toast("Copied!"));
+}
+
+function copyRef() {
+  const link = document.getElementById("refLink");
+  navigator.clipboard.writeText(link.value).then(() => toast("Referral link copied!"));
+}
+
+// Init
+(async function() {
+  const serverOk = await checkServer();
+  if (serverOk) addLog("License server connected", "ok");
+  else addLog("License server not found (port 3001)", "warn");
+  await loadLicense();
+})();
+</script>
+</body>
+</html>

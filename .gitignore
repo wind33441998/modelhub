@@ -20,3 +20,5 @@ tunnel_url.txt
 .credentials/
 tmp/
 server/data/
+.vercel
+.env*
