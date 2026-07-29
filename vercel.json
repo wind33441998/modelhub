@@ -1,12 +1,15 @@
 {
   "version": 2,
   "builds": [
+    { "src": "api/health.js", "use": "@vercel/node" },
     { "src": "api/license.js", "use": "@vercel/node" },
     { "src": "site/**", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/health", "dest": "/api/health.js" },
     { "src": "/api/(.*)", "dest": "/api/license.js" },
     { "src": "/dashboard", "dest": "/site/dashboard.html" },
     { "src": "/(.*)", "dest": "/site/$1" }
   ]
 }
+
