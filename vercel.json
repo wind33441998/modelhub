@@ -6,10 +6,11 @@
     { "src": "site/**", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/health", "dest": "/api/health.js" },
+    { "src": "/health", "dest": "/api/health.js" },`r`n    { "src": "/api/health", "dest": "/api/health.js" },
     { "src": "/api/(.*)", "dest": "/api/license.js" },
     { "src": "/dashboard", "dest": "/site/dashboard.html" },
     { "src": "/(.*)", "dest": "/site/$1" }
   ]
 }
+
 
