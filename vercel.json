@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "functions": {
-    "api/license.js": {
-      "maxDuration": 10
-    }
-  },
+  "builds": [
+    { "src": "api/license.js", "use": "@vercel/node" },
+    { "src": "site/**", "use": "@vercel/static" }
+  ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/license.js" },
+    { "src": "/dashboard", "dest": "/site/dashboard.html" },
     { "src": "/(.*)", "dest": "/site/$1" }
   ]
 }
