@@ -1,0 +1,13 @@
+{
+  "name": "modelhub-server",
+  "version": "1.0.0",
+  "description": "ModelHub License Server - API for license verification, user management, and referrals",
+  "main": "api/verify.js",
+  "scripts": {
+    "dev": "node api/verify.js",
+    "start": "node api/verify.js"
+  },
+  "dependencies": {
+    "uuid": "^9.0.0"
+  }
+}

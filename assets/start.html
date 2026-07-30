@@ -173,8 +173,8 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;background:#0b1220
     <div class="brand">
       <div class="mark">🔌</div>
       <div>
-        <h1>ModelHub 多模型网关 <span class="conn" id="connDot" title="代理连接状态"></span></h1>
-        <p>Claude Code · Codex 统一网关 · 本地运行 · 密钥存本机</p>
+        <h1><span data-i18n="title_main">ModelHub 多模型网关</span> <span class="conn" id="connDot" title=""></span></h1>
+        <p data-i18n="title_sub">Claude Code · Codex 统一网关 · 本地运行 · 密钥存本机</p>
       </div>
     </div>
     <div class="toggles">
@@ -185,28 +185,28 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;background:#0b1220
 
   <!-- 0. 环境自检 -->
   <div class="card r" style="animation-delay:.08s">
-    <div class="ct">环境自检 <span id="envHint" class="badge intl" style="margin-left:auto;cursor:pointer">运行自检</span></div>
+    <div class="ct"><span data-i18n="card_env">环境自检</span> <span id="envHint" class="badge intl" style="margin-left:auto;cursor:pointer" data-i18n="env_run">运行自检</span></div>
     <div class="env" id="envGrid"></div>
   </div>
 
   <!-- 卡1：配置 API 密钥（前置条件） -->
   <div class="card r" style="animation-delay:.14s">
-    <div class="ct"><span class="num">1</span>配置 API 密钥 <span style="margin-left:auto;font-size:11px;color:var(--muted);font-family:var(--mono)">先填密钥，才能选模型</span></div>
+    <div class="ct"><span class="num">1</span><span data-i18n="card1_title">配置 API 密钥</span> <span style="margin-left:auto;font-size:11px;color:var(--muted);font-family:var(--mono)" data-i18n="card1_sub">先填密钥，才能选模型</span></div>
     <div id="keyList"></div>
-    <div class="design-note">为每个供应商填写并保存 API Key（仅存本机 <code>~/.modelhub/keys.json</code>）。<b>密钥就绪后</b>，卡2「已连接客户端」里的绑定模型下拉才会出现可选项；未配密钥的供应商其模型为灰禁状态。</div>
+    <div class="design-note" data-i18n-html="card1_note">为每个供应商填写并保存 API Key（仅存本机 <code>~/.modelhub/keys.json</code>）。<b>密钥就绪后</b>，卡2「已连接客户端」里的绑定模型下拉才会出现可选项；未配密钥的供应商其模型为灰禁状态。</div>
   </div>
 
   <!-- 卡2：已连接客户端（选客户端 + 绑模型） -->
   <div class="card r" style="animation-delay:.2s">
-    <div class="ct"><span class="num">2</span>已连接客户端 <span class="badge cn" style="margin-left:auto;font-size:10px">2 个 · 点卡片选客户端</span></div>
+    <div class="ct"><span class="num">2</span><span data-i18n="card2_title">已连接客户端</span> <span class="badge cn" style="margin-left:auto;font-size:10px" data-i18n="card2_badge">2 个 · 点卡片选客户端</span></div>
     <div class="clients" id="clientWrap"></div>
-    <div class="design-note">点任意客户端卡片选定要配置的软件（选中者酸绿描边），再用卡片内 <b>绑定模型下拉</b> 选择当前激活模型。<b>网关同一时刻只有一个激活模型</b>，两个客户端共用该选择。未配密钥的供应商模型为灰禁状态。</div>
+    <div class="design-note" data-i18n-html="card2_note">点任意客户端卡片选定要配置的软件（选中者酸绿描边），再用卡片内 <b>绑定模型下拉</b> 选择当前激活模型。<b>网关同一时刻只有一个激活模型</b>，两个客户端共用该选择。未配密钥的供应商模型为灰禁状态。</div>
   </div>
 
   <!-- 卡3：接入客户端 -->
   <div class="card r" style="animation-delay:.26s">
-    <div class="ct"><span class="num">3</span>接入客户端</div>
-    <div class="design-note">点「更改配置文件」会由本地代理自动定位并修改对应配置文件（<code>~/.claude/settings.json</code> / <code>~/.codex/config.toml</code>），仅<b>合并新增项、不覆盖你原有内容</b>；写入前自动备份为 <code>.bak</code>，出错可一键还原。</div>
+    <div class="ct"><span class="num">3</span><span data-i18n="card3_title">接入客户端</span></div>
+    <div class="design-note" data-i18n-html="card3_note">点「更改配置文件」会由本地代理自动定位并修改对应配置文件（<code>~/.claude/settings.json</code> / <code>~/.codex/config.toml</code>），仅<b>合并新增项、不覆盖你原有内容</b>；写入前自动备份为 <code>.bak</code>，出错可一键还原。</div>
     <div class="tabs">
       <div class="tab on" data-tab="cc"><span class="dot cc"></span>Claude Code</div>
       <div class="tab" data-tab="cx"><span class="dot cx"></span>Codex</div>
@@ -214,7 +214,7 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;background:#0b1220
 
     <div class="tabpane" id="pane-cc">
       <div class="pathbox">
-        <span class="pl">目标文件</span>
+        <span class="pl" data-i18n="path_target">目标文件</span>
         <code>~/.claude/settings.json</code>
         <span class="pathstate" id="ccState">检测中</span>
       </div>
@@ -232,16 +232,16 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;background:#0b1220
   }
 }</pre>
       <div style="display:flex;gap:10px;justify-content:center">
-        <button class="btn" id="ccWrite">✍ 更改配置文件</button>
-        <button class="btn ghost" id="ccCopy">📋 复制 settings.json</button>
+        <button class="btn" id="ccWrite" data-i18n="cc_write">✍ 更改配置文件</button>
+        <button class="btn ghost" id="ccCopy" data-i18n="cc_copy">📋 复制 settings.json</button>
       </div>
-      <div style="text-align:center;margin-top:10px"><a class="maillink" id="ccRestore" href="#">🔗 恢复原配置</a></div>
-      <div class="warn"><span>⚠️</span><span>点「更改配置文件」会<b>自动合并</b>上面的 env 段进你现有的 settings.json：仅新增/覆盖 ModelHub 相关 key，<b>不动你原有的 theme、API_TIMEOUT_MS 等其他配置</b>；写入前自动备份为 <code>settings.json.bak</code>，出错可一键恢复。</span></div>
+      <div style="text-align:center;margin-top:10px"><a class="maillink" id="ccRestore" href="#" data-i18n="cc_restore">🔗 恢复原配置</a></div>
+      <div class="warn"><span>⚠️</span><span data-i18n-html="warn_cc">点「更改配置文件」会<b>自动合并</b>上面的 env 段进你现有的 settings.json：仅新增/覆盖 ModelHub 相关 key，<b>不动你原有的 theme、API_TIMEOUT_MS 等其他配置</b>；写入前自动备份为 <code>settings.json.bak</code>，出错可一键恢复。</span></div>
     </div>
 
     <div class="tabpane" id="pane-cx" style="display:none">
       <div class="pathbox">
-        <span class="pl">目标文件</span>
+        <span class="pl" data-i18n="path_target">目标文件</span>
         <code>~/.codex/config.toml</code>
         <span class="pathstate" id="cxState">检测中</span>
       </div>
@@ -257,43 +257,236 @@ wire_api = "chat"
 models = ["deepseek-chat", "deepseek-reasoner", "glm-4-plus", "kimi-chat", "qwen-max"]
 default_model = "deepseek-chat"</pre>
       <div style="display:flex;gap:10px;justify-content:center">
-        <button class="btn" id="cxWrite">✍ 更改配置文件</button>
-        <button class="btn ghost" id="cxCopy">📋 复制 config.toml</button>
+        <button class="btn" id="cxWrite" data-i18n="cx_write">✍ 更改配置文件</button>
+        <button class="btn ghost" id="cxCopy" data-i18n="cx_copy">📋 复制 config.toml</button>
       </div>
-      <div style="text-align:center;margin-top:10px"><a class="maillink" id="cxRestore" href="#">🔗 恢复原配置</a></div>
-      <div class="warn"><span>⚠️</span><span>点「更改配置文件」只改顶层 <b>model</b> / <b>model_provider</b> 两行，并新增/覆盖 <b>[model_providers.modelhub]</b> 段；<b>不动你原有的 [model_providers.deepseek]、[projects.*]、[plugins.*] 等</b>。写入前自动备份为 <code>config.toml.bak</code>。</span></div>
+      <div style="text-align:center;margin-top:10px"><a class="maillink" id="cxRestore" href="#" data-i18n="cx_restore">🔗 恢复原配置</a></div>
+      <div class="warn"><span>⚠️</span><span data-i18n-html="warn_cx">点「更改配置文件」只改顶层 <b>model</b> / <b>model_provider</b> 两行，并新增/覆盖 <b>[model_providers.modelhub]</b> 段；<b>不动你原有的 [model_providers.deepseek]、[projects.*]、[plugins.*] 等</b>。写入前自动备份为 <code>config.toml.bak</code>。</span></div>
       <div class="steps">
-        <div class="step"><span class="sn">A</span><span>保持 ModelHub 代理运行（本界面能打开即说明它开着）。</span></div>
-        <div class="step"><span class="sn">B</span><span>复制上方片段，粘贴到 <code>~/.codex/config.toml</code> 末尾（用记事本打开）。</span></div>
-        <div class="step"><span class="sn">C</span><span>完全退出并重启 Codex 桌面端，新配置才生效。</span></div>
-        <div class="step"><span class="sn">D</span><span>在 Codex 发一条消息，回本界面看「活动日志」来源列是否出现 API 记录。</span></div>
+        <div class="step"><span class="sn">A</span><span data-i18n-html="stepA">保持 ModelHub 代理运行（本界面能打开即说明它开着）。</span></div>
+        <div class="step"><span class="sn">B</span><span data-i18n-html="stepB">复制上方片段，粘贴到 <code>~/.codex/config.toml</code> 末尾（用记事本打开）。</span></div>
+        <div class="step"><span class="sn">C</span><span data-i18n-html="stepC">完全退出并重启 Codex 桌面端，新配置才生效。</span></div>
+        <div class="step"><span class="sn">D</span><span data-i18n-html="stepD">在 Codex 发一条消息，回本界面看「活动日志」来源列是否出现 API 记录。</span></div>
       </div>
     </div>
   </div>
 
   <!-- 卡4：活动日志 -->
   <div class="card r" style="animation-delay:.32s">
-    <div class="ct">活动日志 <span id="logCount" class="badge intl" style="margin-left:auto">0 条</span></div>
+    <div class="ct"><span data-i18n="card4_title">活动日志</span> <span id="logCount" class="badge intl" style="margin-left:auto">0 条</span></div>
     <div id="logList" class="loglist"></div>
-    <div style="text-align:center;margin-top:10px"><button class="btn ghost" id="logMore" style="display:none">加载更多</button></div>
-    <div class="design-note">「来源」列区分请求来自 Claude Code / OpenAI API（Codex 等走 OpenAI 协议），便于排查哪条客户端链路有问题。</div>
+    <div style="text-align:center;margin-top:10px"><button class="btn ghost" id="logMore" style="display:none" data-i18n="log_more">加载更多</button></div>
+    <div class="design-note" data-i18n-html="card4_note">「来源」列区分请求来自 Claude Code / OpenAI API（Codex 等走 OpenAI 协议），便于排查哪条客户端链路有问题。</div>
   </div>
 
   <!-- 联系：只留发邮件 -->
   <div class="card r" style="animation-delay:.38s">
-    <div class="ct"><span class="num">✉</span>联系与反馈</div>
-    <div class="design-note" style="color:var(--text)">使用中有问题、想要新功能，或需要定制专属模型网关？欢迎随时联系，通常 1 天内回复。<a class="maillink" href="mailto:33441998@qq.com">发邮件</a></div>
+    <div class="ct"><span class="num">✉</span><span data-i18n="contact_title">联系与反馈</span></div>
+    <div class="design-note" style="color:var(--text)" data-i18n-html="contact_note">使用中有问题、想要新功能，或需要定制专属模型网关？欢迎随时联系，通常 1 天内回复。<a class="maillink" href="mailto:33441998@qq.com">发邮件</a></div>
   </div>
 
-  <div class="foot">🔒 本地运行 · 密钥仅存本机 ~/.modelhub/keys.json，不会上传</div>
+  <div class="foot" data-i18n="footer">🔒 本地运行 · 密钥仅存本机 ~/.modelhub/keys.json，不会上传</div>
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
 // 兼容两种打开方式：同源(http)直接用相对路径；file:// 直接双击则指向本机代理
 const BASE = (location.protocol === 'file:') ? 'http://127.0.0.1:4000' : '';
-const AUTH = 'sk-local-proxy';
+// 启动时注入真实 token（见 serveStart 的字符串替换）；运行时不可改
+/*__AUTH_TOKEN__*/ const AUTH = 'sk-local-proxy';
 const STOP_URL = BASE + '/api/stop';
+
+// ===== 中英双语 i18n =====
+let LANG = (function(){ try{ return localStorage.getItem('modelhub_lang') || 'zh'; }catch(e){ return 'zh'; } })();
+const I18N = {
+  zh: {
+    title_main:'ModelHub 多模型网关',
+    title_sub:'Claude Code · Codex 统一网关 · 本地运行 · 密钥存本机',
+    doc_title:'ModelHub 多模型网关 — 管理面板',
+    card_env:'环境自检',
+    env_run:'运行自检',
+    card1_title:'配置 API 密钥',
+    card1_sub:'先填密钥，才能选模型',
+    card1_note:'为每个供应商填写并保存 API Key（仅存本机 <code>~/.modelhub/keys.json</code>）。<b>密钥就绪后</b>，卡2「已连接客户端」里的绑定模型下拉才会出现可选项；未配密钥的供应商其模型为灰禁状态。',
+    card2_title:'已连接客户端',
+    card2_badge:'2 个 · 点卡片选客户端',
+    card2_note:'点任意客户端卡片选定要配置的软件（选中者酸绿描边），再用卡片内 <b>绑定模型下拉</b> 选择当前激活模型。<b>网关同一时刻只有一个激活模型</b>，两个客户端共用该选择。未配密钥的供应商模型为灰禁状态。',
+    card3_title:'接入客户端',
+    card3_note:'点「更改配置文件」会由本地代理自动定位并修改对应配置文件（<code>~/.claude/settings.json</code> / <code>~/.codex/config.toml</code>），仅<b>合并新增项、不覆盖你原有内容</b>；写入前自动备份为 <code>.bak</code>，出错可一键还原。',
+    path_target:'目标文件',
+    cc_write:'✍ 更改配置文件',
+    cc_copy:'📋 复制 settings.json',
+    cc_restore:'🔗 恢复原配置',
+    cx_write:'✍ 更改配置文件',
+    cx_copy:'📋 复制 config.toml',
+    cx_restore:'🔗 恢复原配置',
+    warn_cc:'点「更改配置文件」会<b>自动合并</b>上面的 env 段进你现有的 settings.json：仅新增/覆盖 ModelHub 相关 key，<b>不动你原有的 theme、API_TIMEOUT_MS 等其他配置</b>；写入前自动备份为 <code>settings.json.bak</code>，出错可一键恢复。',
+    warn_cx:'点「更改配置文件」只改顶层 <b>model</b> / <b>model_provider</b> 两行，并新增/覆盖 <b>[model_providers.modelhub]</b> 段；<b>不动你原有的 [model_providers.deepseek]、[projects.*]、[plugins.*] 等</b>。写入前自动备份为 <code>config.toml.bak</code>。',
+    stepA:'保持 ModelHub 代理运行（本界面能打开即说明它开着）。',
+    stepB:'复制上方片段，粘贴到 <code>~/.codex/config.toml</code> 末尾（用记事本打开）。',
+    stepC:'完全退出并重启 Codex 桌面端，新配置才生效。',
+    stepD:'在 Codex 发一条消息，回本界面看「活动日志」来源列是否出现 API 记录。',
+    card4_title:'活动日志',
+    log_more:'加载更多',
+    card4_note:'「来源」列区分请求来自 Claude Code / OpenAI API（Codex 等走 OpenAI 协议），便于排查哪条客户端链路有问题。',
+    contact_title:'联系与反馈',
+    contact_note:'使用中有问题、想要新功能，或需要定制专属模型网关？欢迎随时联系，通常 1 天内回复。<a class="maillink" href="mailto:33441998@qq.com">发邮件</a>',
+    footer:'🔒 本地运行 · 密钥仅存本机 ~/.modelhub/keys.json，不会上传',
+    // 动态
+    env_node:'Node.js',
+    env_port:'端口 4000',
+    env_claude:'Claude 配置',
+    env_codex:'Codex 配置',
+    env_keys:'已配密钥',
+    env_run2:'点击运行自检',
+    connected:'已接入',
+    not_connected:'未接入',
+    found:'已存在',
+    missing:'缺失',
+    selftest_running:'正在自检代理链路…',
+    selftest_fail_conn:'自检失败：无法连接代理',
+    selftest_pass:'✓ 自检通过：Anthropic→OpenAI 转换、tool_use 回写均正常',
+    selftest_notpass:'自检未通过：',
+    selftest_unknown:'链路异常',
+    conn_on:'代理已连接',
+    conn_off:'代理未连接（请先启动 ModelHub）',
+    key_no_provider:'未加载到供应商配置',
+    key_saved:'已保存',
+    key_unset:'未配置',
+    key_update:'更新',
+    key_save:'保存',
+    key_empty:'请先填写 {{name}} 的密钥',
+    key_tooshort:'{{name}} 密钥长度不足（至少 8 位），请检查后重试',
+    key_saved_ok:'已{{action}} {{name}} 密钥 ✓ 现在可选它的模型',
+    word_updated:'更新',
+    word_saved:'保存',
+    key_save_fail:'保存失败：',
+    client_on:'● 已接入',
+    client_off:'○ 未接入',
+    client_pointed:'已指向 :4000',
+    client_notpointed:'未指向网关',
+    placeholder_model:'— 请选择模型 —',
+    placeholder_key:'— 请先配置密钥 —',
+    unconfigured:'（未配置密钥）',
+    proto_label:'协议',
+    bind_label:'绑定模型',
+    bind_ok:'已为 {{client}} 绑定 {{model}}',
+    switch_fail:'切换失败：',
+    write_ok:'已写入 {{file}} ✓ 已自动备份 .bak，重启客户端生效',
+    write_conflict_fallback:'文件缺失',
+    write_fail:'写入失败：',
+    restore_ok:'已恢复最初配置 {{file}}（来自 .bak）',
+    restore_noned:'无需恢复：从未写入过该配置',
+    restore_fail:'恢复失败：',
+    copy_ok:'已复制 {{label}} ✓ 可手动粘贴',
+    copy_fail:'复制失败',
+    copy_unsupported:'当前环境不支持自动复制，请手动选择',
+    log_count:'{{total}} 条（显示最近 {{shown}} 条）',
+    log_more_n:'加载更多（还有 {{n}} 条）'
+  },
+  en: {
+    title_main:'ModelHub Multi-Model Gateway',
+    title_sub:'Claude Code · Codex unified gateway · Runs locally · Keys on this machine',
+    doc_title:'ModelHub Multi-Model Gateway — Admin Panel',
+    card_env:'Environment Check',
+    env_run:'Run self-test',
+    card1_title:'Configure API Keys',
+    card1_sub:'Add keys first, then pick models',
+    card1_note:'Fill in and save an API Key for each provider (stored only on this machine at <code>~/.modelhub/keys.json</code>). <b>Once keys are ready</b>, the "Bind model" dropdown in Card 2 (Connected Clients) will show selectable options; models from providers without a key stay greyed out.',
+    card2_title:'Connected Clients',
+    card2_badge:'2 · click a card to select',
+    card2_note:'Click any client card to select the app to configure (selected one gets the acid-green outline), then use the <b>Bind model</b> dropdown inside to pick the active model. <b>The gateway has only one active model at a time</b>, shared by both clients. Models from providers without a key stay greyed out.',
+    card3_title:'Connect Client',
+    card3_note:'Clicking "Edit config file" lets the local proxy auto-locate and modify the relevant config file (<code>~/.claude/settings.json</code> / <code>~/.codex/config.toml</code>); it only <b>merges new entries and never overwrites your existing content</b>; it auto-backs up to <code>.bak</code> before writing, with one-click restore on error.',
+    path_target:'Target file',
+    cc_write:'✍ Edit config file',
+    cc_copy:'📋 Copy settings.json',
+    cc_restore:'🔗 Restore original',
+    cx_write:'✍ Edit config file',
+    cx_copy:'📋 Copy config.toml',
+    cx_restore:'🔗 Restore original',
+    warn_cc:'Clicking "Edit config file" will <b>auto-merge</b> the env block above into your existing settings.json: it only adds/overrides ModelHub-related keys, and <b>leaves your other config (theme, API_TIMEOUT_MS, etc.) untouched</b>; it auto-backs up to <code>settings.json.bak</code> before writing, with one-click restore on error.',
+    warn_cx:'Clicking "Edit config file" only changes the top-level <b>model</b> / <b>model_provider</b> lines and adds/overrides the <b>[model_providers.modelhub]</b> section; it <b>leaves your existing [model_providers.deepseek], [projects.*], [plugins.*], etc. untouched</b>. Auto-backed up to <code>config.toml.bak</code> before writing.',
+    stepA:'Keep the ModelHub proxy running (if this page opens, the proxy is up).',
+    stepB:'Copy the snippet above and paste it at the end of <code>~/.codex/config.toml</code> (open with Notepad).',
+    stepC:'Fully quit and restart the Codex desktop app for the new config to take effect.',
+    stepD:'Send a message in Codex, then return here to check whether an API record appears in the Activity Log source column.',
+    card4_title:'Activity Log',
+    log_more:'Load more',
+    card4_note:'The "Source" column distinguishes requests from Claude Code / OpenAI API (Codex uses the OpenAI protocol), helping you trace which client link has issues.',
+    contact_title:'Contact & Feedback',
+    contact_note:'Having trouble, want a new feature, or need a custom model gateway? Feel free to reach out — we usually reply within 1 day. <a class="maillink" href="mailto:33441998@qq.com">Email us</a>',
+    footer:'🔒 Runs locally · Keys stored only on this machine at ~/.modelhub/keys.json, never uploaded',
+    // dynamic
+    env_node:'Node.js',
+    env_port:'Port 4000',
+    env_claude:'Claude Config',
+    env_codex:'Codex Config',
+    env_keys:'Keys Set',
+    env_run2:'Run self-test',
+    connected:'Connected',
+    not_connected:'Not set',
+    found:'Found',
+    missing:'Missing',
+    selftest_running:'Running self-test…',
+    selftest_fail_conn:'Self-test failed: cannot reach proxy',
+    selftest_pass:'✓ Self-test passed: Anthropic→OpenAI conversion and tool_use write-back work',
+    selftest_notpass:'Self-test failed: ',
+    selftest_unknown:'link abnormal',
+    conn_on:'Proxy connected',
+    conn_off:'Proxy not connected (start ModelHub first)',
+    key_no_provider:'No provider config loaded',
+    key_saved:'Saved',
+    key_unset:'Not set',
+    key_update:'Update',
+    key_save:'Save',
+    key_empty:'Please fill in the key for {{name}} first',
+    key_tooshort:'{{name}} key too short (min 8 chars), please check and retry',
+    key_saved_ok:'{{name}} key {{action}} ✓ you can now select its models',
+    word_updated:'updated',
+    word_saved:'saved',
+    key_save_fail:'Save failed: ',
+    client_on:'● Connected',
+    client_off:'○ Not connected',
+    client_pointed:'Pointing to :4000',
+    client_notpointed:'Not pointing to gateway',
+    placeholder_model:'— Select a model —',
+    placeholder_key:'— Configure keys first —',
+    unconfigured:' (key not set)',
+    proto_label:'Protocol',
+    bind_label:'Bind model',
+    bind_ok:'Bound {{model}} for {{client}}',
+    switch_fail:'Switch failed: ',
+    write_ok:'Written to {{file}} ✓ auto-backed up to .bak, restart client to apply',
+    write_conflict_fallback:'File missing',
+    write_fail:'Write failed: ',
+    restore_ok:'Restored original {{file}} (from .bak)',
+    restore_noned:'No restore needed: config was never written',
+    restore_fail:'Restore failed: ',
+    copy_ok:'Copied {{label}} ✓ you can paste manually',
+    copy_fail:'Copy failed',
+    copy_unsupported:'Auto-copy not supported here, please select manually',
+    log_count:'{{total}} entries (showing last {{shown}})',
+    log_more_n:'Load more ({{n}} more)'
+  }
+};
+function t(k, vars){
+  let s = (I18N[LANG] && I18N[LANG][k] != null) ? I18N[LANG][k] : (I18N.zh[k] != null ? I18N.zh[k] : k);
+  if(vars){ for(const key in vars){ s = s.replace(new RegExp('{{'+key+'}}','g'), vars[key]); } }
+  return s;
+}
+function applyStatic(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el=>{ el.innerHTML = t(el.getAttribute('data-i18n-html')); });
+}
+function applyLang(){
+  document.documentElement.setAttribute('lang', LANG==='en'?'en':'zh');
+  document.title = t('doc_title');
+  const b=document.getElementById('langBtn'); if(b) b.textContent = LANG==='en'?'中':'EN';
+  applyStatic();
+  if(LAST_ENV) renderEnvGrid(LAST_ENV);
+  renderKeyList(); renderClients(); renderLog();
+}
 
 // HTML 实体转义：防止 API 返回字段中的 < > & " ' 被当作标记执行（修复审计 M1 XSS）
 function esc(s){
@@ -303,7 +496,8 @@ function esc(s){
 }
 
 async function api(path, opts){
-  const res = await fetch(BASE + path, opts);
+  const headers = Object.assign({}, (opts && opts.headers) || {}, { 'Authorization': 'Bearer ' + AUTH });
+  const res = await fetch(BASE + path, Object.assign({}, opts, { headers }));
   let data = null;
   try { data = await res.json(); } catch(e){}
   return { ok: res.ok, status: res.status, data };
@@ -315,6 +509,7 @@ let activeClient = 'cc';
 let LOGS = [];               // 来自 /api/logs
 let logVisible = 50;
 let connected = false;
+let LAST_ENV = null;
 
 function badge(r){ return r==='cn'?'<span class="badge cn">国内</span>':'<span class="badge intl">国际</span>'; }
 function clientName(id){ return id==='cc'?'Claude Code':'Codex'; }
@@ -339,13 +534,18 @@ async function refreshEnv(){
   const r = await api('/api/env');
   if(!r.ok){ setConnected(false); return; }
   setConnected(true);
-  const e = r.data;
+  LAST_ENV = r.data;
+  renderEnvGrid(LAST_ENV);
+  const portTile=document.querySelector('.tile[data-act="selftest"]');
+  if(portTile) portTile.addEventListener('click', runSelfTest);
+}
+function renderEnvGrid(e){
   const items=[
-    {l:'Node.js', ok:e.node.ok, val:e.node.version, msg:''},
-    {l:'端口 4000', ok:e.port.ok, val:':4000', msg:'点击运行自检', click:'selftest'},
-    {l:'Claude 配置', ok:e.claudeSettings.exists, val:e.claudeSettings.exists?'已接入':'未接入', msg:''},
-    {l:'Codex 配置', ok:e.codexConfig.exists, val:e.codexConfig.exists?'已接入':'未接入', msg:''},
-    {l:'已配密钥', ok:true, val:e.providersConfigured+'/'+e.totalProviders, msg:''},
+    {l:t('env_node'), ok:e.node.ok, val:e.node.version, msg:''},
+    {l:t('env_port'), ok:e.port.ok, val:':4000', msg:t('env_run2'), click:'selftest'},
+    {l:t('env_claude'), ok:e.claudeSettings.exists, val:e.claudeSettings.exists?t('connected'):t('not_connected'), msg:''},
+    {l:t('env_codex'), ok:e.codexConfig.exists, val:e.codexConfig.exists?t('connected'):t('not_connected'), msg:''},
+    {l:t('env_keys'), ok:true, val:e.providersConfigured+'/'+e.totalProviders, msg:''},
   ];
   document.getElementById('envGrid').innerHTML = items.map((it,i)=>{
     const cls=it.ok?'ok':'bad';
@@ -354,28 +554,25 @@ async function refreshEnv(){
   }).join('');
   const st1=document.getElementById('ccState');
   st1.className='pathstate '+(e.claudeSettings.exists?'exist':'miss');
-  st1.textContent=e.claudeSettings.exists?'已存在':'缺失';
+  st1.textContent=e.claudeSettings.exists?t('found'):t('missing');
   const st2=document.getElementById('cxState');
   st2.className='pathstate '+(e.codexConfig.exists?'exist':'miss');
-  st2.textContent=e.codexConfig.exists?'已存在':'缺失';
-  // 端口 tile → 自检
-  const portTile=document.querySelector('.tile[data-act="selftest"]');
-  if(portTile) portTile.addEventListener('click', runSelfTest);
+  st2.textContent=e.codexConfig.exists?t('found'):t('missing');
 }
 
 async function runSelfTest(){
-  toast('正在自检代理链路…');
+  toast(t('selftest_running'));
   const r = await api('/api/selftest');
-  if(!r.ok){ toast('自检失败：无法连接代理','err'); return; }
-  if(r.data && r.data.ok){ toast('✓ 自检通过：Anthropic→OpenAI 转换、tool_use 回写均正常'); }
-  else { toast('自检未通过：'+(r.data.error||'链路异常'),'err'); }
+  if(!r.ok){ toast(t('selftest_fail_conn'),'err'); return; }
+  if(r.data && r.data.ok){ toast(t('selftest_pass')); }
+  else { toast(t('selftest_notpass')+(r.data.error||t('selftest_unknown')),'err'); }
 }
 
 function setConnected(v){
   connected = v;
   const dot=document.getElementById('connDot');
   dot.className='conn'+(v?' ok':'');
-  dot.title = v?'代理已连接':'代理未连接（请先启动 ModelHub）';
+  dot.title = v?t('conn_on'):t('conn_off');
 }
 
 // ---------- 卡1：密钥列表（真实） ----------
@@ -389,16 +586,16 @@ async function refreshModels(){
 }
 function renderKeyList(){
   const list=document.getElementById('keyList');
-  if(!PROVIDERS.length){ list.innerHTML='<div class="design-note">未加载到供应商配置</div>'; return; }
+  if(!PROVIDERS.length){ list.innerHTML='<div class="design-note">'+t('key_no_provider')+'</div>'; return; }
   list.innerHTML=PROVIDERS.map(p=>{
-    const st=p.configured?'已保存':'未配置';
+    const st=p.configured?t('key_saved'):t('key_unset');
     const eye=p.configured?'<button class="eye" data-eye="'+esc(p.name)+'" title="显示 / 隐藏密钥">👁</button>':'';
     return '<div class="krow" data-prov="'+esc(p.name)+'">'
       +'<div class="kn"><span class="ico">'+esc(p.icon)+'</span><span class="kn-t">'+esc(p.display)+'</span>'+badge(p.region)+'</div>'
       +'<input type="password" data-inp="'+esc(p.name)+'" placeholder="sk-..." value="" />'
       +eye
       +'<div class="st" data-st="'+esc(p.name)+'">'+esc(st)+'</div>'
-      +'<button class="btn ghost" data-save="'+esc(p.name)+'">'+(p.configured?'更新':'保存')+'</button>'
+      +'<button class="btn ghost" data-save="'+esc(p.name)+'">'+(p.configured?t('key_update'):t('key_save'))+'</button>'
       +'</div>';
   }).join('');
   list.querySelectorAll('.eye').forEach(b=>b.addEventListener('click',()=>{
@@ -410,14 +607,16 @@ function renderKeyList(){
     const inp=list.querySelector('input[data-inp="'+p.name+'"]');
     const v=inp.value.trim();
     const st=list.querySelector('.st[data-st="'+p.name+'"]');
-    if(!v){ st.textContent='未填'; toast('请先填写 '+p.display+' 的密钥','warn'); inp.focus(); return; }
-    if(v.length<8){ st.textContent='过短'; toast(p.display+' 密钥长度不足（至少 8 位），请检查后重试','warn'); inp.focus(); return; }
+    if(!v){ st.textContent=t('key_unset'); toast(t('key_empty',{name:p.display}),'warn'); inp.focus(); return; }
+    if(v.length<8){ st.textContent=t('key_unset'); toast(t('key_tooshort',{name:p.display}),'warn'); inp.focus(); return; }
     const r=await api('/api/keys',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({provider:p.name,key:v})});
     if(r.ok && r.data.ok){
-      p.configured=true; st.textContent='已保存';
-      toast('已'+(b.textContent==='更新'?'更新':'保存')+' '+p.display+' 密钥 ✓ 现在可选它的模型');
+      p.configured=true; st.textContent=t('key_saved');
+      const isUpdate = b.textContent===t('key_update');
+      const actionWord = isUpdate ? t('word_updated') : t('word_saved');
+      toast(t('key_saved_ok',{name:p.display, action:actionWord}));
       renderKeyList(); renderClients(); refreshEnv();
-    } else { toast('保存失败：'+(r.data&&r.data.error||'未知错误'),'err'); }
+    } else { toast(t('key_save_fail')+(r.data&&r.data.error||'未知错误'),'err'); }
   }));
 }
 
@@ -430,17 +629,17 @@ function renderClients(){
   ];
   wrap.innerHTML=CLIENTS.map(c=>{
     const sel=activeClient===c.id?' sel':'';
-    const tag=c.connected?'<span class="tag on">● 已接入</span>':'<span class="tag off">○ 未接入</span>';
+    const tag=c.connected?'<span class="tag on">'+t('client_on')+'</span>':'<span class="tag off">'+t('client_off')+'</span>';
     const dot=c.connected?'ok':'bad';
-    const sub=c.connected?'已指向 :4000':'未指向网关';
-    const placeholder = anyKeyConfigured() ? '— 请选择模型 —' : '— 请先配置密钥 —';
+    const sub=c.connected?t('client_pointed'):t('client_notpointed');
+    const placeholder = anyKeyConfigured() ? t('placeholder_model') : t('placeholder_key');
     const opts='<option value="" '+(CURRENT?'':'selected')+' disabled>'+esc(placeholder)+'</option>'+
       PROVIDERS.map(p=>{
         const dis=p.configured?'':'disabled';
-        const lbl=p.display+(p.configured?'':'（未配置密钥）');
+        const lbl=p.display+(p.configured?'':t('unconfigured'));
         return '<optgroup label="'+esc(lbl)+'">'+p.models.map(m=>'<option value="'+esc(m.alias)+'" '+dis+(CURRENT===m.alias?' selected':'')+'>'+esc(m.alias)+'</option>').join('')+'</optgroup>';
       }).join('');
-    return '<div class="client'+sel+'" data-client="'+c.id+'">'+tag+'<div class="ch"><div class="ci">'+esc(c.icon)+'</div><div><div class="cn">'+esc(c.name)+'</div><div class="cs"><span class="dot '+dot+'"></span><span style="color:var(--muted)">'+esc(sub)+'</span></div></div></div><div class="crow"><span class="k">协议</span><span class="vv">'+esc(c.proto)+'</span></div><div class="crow"><span class="k">绑定模型</span><select class="modelselect" data-client="'+c.id+'">'+opts+'</select></div><div class="selbar"></div></div>';
+    return '<div class="client'+sel+'" data-client="'+c.id+'">'+tag+'<div class="ch"><div class="ci">'+esc(c.icon)+'</div><div><div class="cn">'+esc(c.name)+'</div><div class="cs"><span class="dot '+dot+'"></span><span style="color:var(--muted)">'+esc(sub)+'</span></div></div></div><div class="crow"><span class="k">'+t('proto_label')+'</span><span class="vv">'+esc(c.proto)+'</span></div><div class="crow"><span class="k">'+t('bind_label')+'</span><select class="modelselect" data-client="'+c.id+'">'+opts+'</select></div><div class="selbar"></div></div>';
   }).join('');
   wrap.querySelectorAll('.client').forEach(el=>el.addEventListener('click',(e)=>{
     if(e.target.closest('.modelselect')) return;
@@ -451,9 +650,9 @@ function renderClients(){
     const r=await api('/api/switch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:s.value})});
     if(r.ok && r.data.ok){
       CURRENT=r.data.current;
-      toast('已为 '+clientName(s.dataset.client)+' 绑定 '+s.value);
+      toast(t('bind_ok',{client:clientName(s.dataset.client), model:s.value}));
       renderClients();
-    } else { toast('切换失败：'+(r.data&&r.data.error||'未知错误'),'err'); }
+    } else { toast(t('switch_fail')+(r.data&&r.data.error||'未知错误'),'err'); }
   }));
 }
 function setActive(id){ activeClient=id; renderClients(); }
@@ -463,23 +662,23 @@ async function writeConfig(tool){
   const model=CURRENT||'deepseek-chat';
   const r=await api('/api/write-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tool,model})});
   if(r.ok && r.data.ok){
-    toast('已写入 '+(tool==='cc'?'~/.claude/settings.json':'~/.codex/config.toml')+' ✓ 已自动备份 .bak，重启客户端生效');
+    toast(t('write_ok',{file:(tool==='cc'?'~/.claude/settings.json':'~/.codex/config.toml')}));
     refreshEnv();
   } else if(r.status===409){
-    toast('⚠ '+(r.data.message||'文件缺失'),'warn');
+    toast('⚠ '+(r.data.message||t('write_conflict_fallback')),'warn');
   } else {
-    toast('写入失败：'+(r.data&&r.data.error||r.data&&r.data.message||'未知错误'),'err');
+    toast(t('write_fail')+(r.data&&r.data.error||r.data&&r.data.message||'未知错误'),'err');
   }
 }
 async function restoreConfig(tool){
   const r=await api('/api/restore-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tool})});
-  if(r.ok && r.data.ok){ toast('已恢复最初配置 '+(tool==='cc'?'settings.json':'config.toml')+'（来自 .bak）'); refreshEnv(); }
-  else if(r.status===409){ toast('无需恢复：从未写入过该配置','warn'); }
-  else { toast('恢复失败：'+(r.data&&r.data.error||'未知错误'),'err'); }
+  if(r.ok && r.data.ok){ toast(t('restore_ok',{file:(tool==='cc'?'settings.json':'config.toml')})); refreshEnv(); }
+  else if(r.status===409){ toast(t('restore_noned'),'warn'); }
+  else { toast(t('restore_fail')+(r.data&&r.data.error||'未知错误'),'err'); }
 }
 function copyText(txt,label){
-  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(()=>toast('已复制 '+label+' ✓ 可手动粘贴'),()=>toast('复制失败','err')); }
-  else { toast('当前环境不支持自动复制，请手动选择','warn'); }
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(()=>toast(t('copy_ok',{label:label})),()=>toast(t('copy_fail'),'err')); }
+  else { toast(t('copy_unsupported'),'warn'); }
 }
 
 // ---------- 卡4：活动日志 ----------
@@ -498,10 +697,10 @@ function renderLog(){
     const ok = r.status!=='error';
     return '<div class="logrow"><span class="lt">'+fmtTime(r.t)+'</span><span class="lm">'+esc(r.model||'-')+'</span><span class="lsrc '+src+'">'+srcName+'</span><span class="lp">'+esc(r.provider||'-')+'</span><span class="ls '+(ok?'ok':'err')+'">'+(ok?'OK':'ERR')+'</span><span class="lms">'+(r.ms||0)+'ms</span></div>';
   }).join('');
-  document.getElementById('logCount').textContent=LOGS.length+' 条（显示最近 '+Math.min(logVisible,LOGS.length)+' 条）';
+  document.getElementById('logCount').textContent=t('log_count',{total:LOGS.length, shown:Math.min(logVisible,LOGS.length)});
   const more=document.getElementById('logMore');
   const remain=LOGS.length-logVisible;
-  if(remain>0){ more.style.display='inline-block'; more.textContent='加载更多（还有 '+remain+' 条）'; }
+  if(remain>0){ more.style.display='inline-block'; more.textContent=t('log_more_n',{n:remain}); }
   else { more.style.display='none'; }
 }
 
@@ -529,7 +728,11 @@ function bindStatic(){
     else document.documentElement.removeAttribute('data-theme');
     document.getElementById('themeBtn').textContent=next==='dark'?'☀️':'🌙';
   });
-  document.getElementById('langBtn').addEventListener('click',()=>{ const b=document.getElementById('langBtn'); b.textContent=b.textContent==='EN'?'中':'EN'; });
+  document.getElementById('langBtn').addEventListener('click',()=>{
+    LANG = (LANG==='zh')?'en':'zh';
+    try{ localStorage.setItem('modelhub_lang', LANG); }catch(e){}
+    applyLang();
+  });
 }
 async function poll(){
   await refreshEnv();
@@ -537,6 +740,7 @@ async function poll(){
   await refreshLogs();
 }
 bindStatic();
+applyLang();
 poll();
 setInterval(poll, 4000);   // 4 秒轮询，保持状态/日志实时
 </script>

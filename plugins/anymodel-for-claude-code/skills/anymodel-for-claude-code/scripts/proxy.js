@@ -85,7 +85,11 @@ let AUTH_TOKEN = 'sk-local-proxy';
 
 // ---------- 初始化数据目录 ----------
 function initDir() {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    // 安全(B5): 数据目录创建时立即设置 0700 权限，缩小首次运行的时间窗口
+    try { fs.chmodSync(DATA_DIR, 0o700); } catch (_) {}
+  }
   if (!fs.existsSync(CONFIG_PATH) && fs.existsSync(DEFAULT_CONFIG_PATH)) {
     fs.copyFileSync(DEFAULT_CONFIG_PATH, CONFIG_PATH);
     console.log('[ModelHub] 首次运行，已创建默认配置: ' + CONFIG_PATH);
@@ -171,6 +175,17 @@ function loadKeys() {
   }
 }
 
+// 安全写密钥文件：0600 权限 + 目录 0700
+function saveKeysFile(keys) {
+  try {
+    fs.mkdirSync(path.dirname(KEYS_PATH), { recursive: true });
+    // 安全(B2): 数据目录 0700 权限，密钥文件 0600，防止同一机器的其他用户读取
+    try { fs.chmodSync(DATA_DIR, 0o700); } catch (_) {}
+    fs.writeFileSync(KEYS_PATH, JSON.stringify(keys, null, 2));
+    try { fs.chmodSync(KEYS_PATH, 0o600); } catch (_) {}
+  } catch (e) { console.error('[密钥存储] 写入失败:', e.message); }
+}
+
 function effectiveKey(name) {
   if (config.providers[name] && config.providers[name].internal) return 'internal';
   if (keysFile[name]) return keysFile[name];
@@ -178,12 +193,14 @@ function effectiveKey(name) {
   return p ? p.api_key : '';
 }
 
-function resolveProvider(model) {
+function resolveProvider(model, noFallback) {
   if (model === 'default' || model === 'auto') return resolveProvider(state.current || '');
   if (modelMap[model]) return modelMap[model];
   for (const [name] of Object.entries(config.providers)) {
     if (model.startsWith(name + '-') || model.startsWith(name + '/')) return { provider: name, upstream: model.slice(name.length + 1) };
   }
+  // 安全(P2): noFallback=true 时未知模型不静默回退，让调用方返回 400
+  if (noFallback) return null;
   // 未知模型名 fallback 到当前激活模型
   if (state.current && modelMap[state.current]) return modelMap[state.current];
   const first = Object.keys(config.providers).find(n => !config.providers[n].internal);
@@ -396,7 +413,9 @@ function makeEchoStream() {
 
 function handleMessages(a, res) {
   const started = Date.now();
-  const target = resolveProvider(a.model || '');
+  const modelName = a.model || '';
+  const isExplicit = modelName && modelName !== 'default' && modelName !== 'auto';
+  const target = resolveProvider(modelName, isExplicit); // 安全(P2): 显式指定未知模型名时不静默回退
   let done = false;
   function complete(status, err) {
     if (done) return; done = true;
@@ -406,7 +425,11 @@ function handleMessages(a, res) {
     res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({ type: 'error', error: { type, message } }));
   }
-  if (!target) { sendErr(400, 'invalid_request_error', '没有配置任何 provider，请检查 config.json 或设置 DEEPSEEK_KEY'); complete('error', 'no provider'); return; }
+  if (!target) {
+    const explicitHint = isExplicit && modelName ? ('未知模型名 "' + modelName + '"，可用: ' + Object.keys(modelMap).join(', ')) : '没有配置任何 provider';
+    sendErr(400, 'invalid_request_error', '请检查 config.json 或设置 DEEPSEEK_KEY。' + explicitHint);
+    complete('error', 'no provider'); return;
+  }
   const provider = config.providers[target.provider];
   if (!provider.internal && !effectiveKey(target.provider)) {
     sendErr(401, 'authentication_error', 'provider [' + target.provider + '] 缺少 API key，请在界面填写或运行 modelhub keys set ' + target.provider + ' <KEY>');
@@ -446,7 +469,9 @@ function handleMessages(a, res) {
 // 输入已是 OpenAI 格式，只需解析 model 别名、注入供应商 key，直接转发上游 SSE/JSON
 function handleChatCompletions(body, res) {
   const started = Date.now();
-  const target = resolveProvider(body.model || '');
+  const modelName = body.model || '';
+  const isExplicit = modelName && modelName !== 'default' && modelName !== 'auto';
+  const target = resolveProvider(modelName, isExplicit);
   let done = false;
   function complete(status, err) {
     if (done) return; done = true;
@@ -456,7 +481,11 @@ function handleChatCompletions(body, res) {
     res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({ error: { message, type: 'invalid_request_error' } }));
   }
-  if (!target) { sendErr(400, '没有配置任何 provider，请检查 config.json 或设置对应环境变量'); complete('error', 'no provider'); return; }
+  if (!target) {
+    const explicitHint = isExplicit && modelName ? ('未知模型名 "' + modelName + '"，可用: ' + Object.keys(modelMap).join(', ')) : '没有配置任何 provider';
+    sendErr(400, '请检查 config.json 或设置对应环境变量。' + explicitHint);
+    complete('error', 'no provider'); return;
+  }
   const provider = config.providers[target.provider];
   if (provider.internal) { sendErr(400, 'echo 自检模型不支持原生 OpenAI Chat Completions 接口，请选择真实模型 (如 deepseek-chat)'); complete('error', 'echo unsupported'); return; }
   if (!effectiveKey(target.provider)) {
@@ -618,7 +647,9 @@ function chatMsgToRespItem(message) {
 
 function handleResponses(body, res) {
   const started = Date.now();
-  const target = resolveProvider(body.model || '');
+  const modelName = body.model || '';
+  const isExplicit = modelName && modelName !== 'default' && modelName !== 'auto';
+  const target = resolveProvider(modelName, isExplicit);
   debugLog('REQ', body.model, 'provider=' + (target ? target.provider : 'NONE'),
     'tools=' + (body.tools ? body.tools.length : 0),
     'toolNames=' + (body.tools ? body.tools.map(t => t.name).join(',') : '-'),
@@ -634,7 +665,10 @@ function handleResponses(body, res) {
     res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({ error: { message, type: 'invalid_request_error' } }));
   }
-  if (!target) { sendErr(400, '没有配置任何 provider，请检查 config.json'); complete('error', 'no provider'); return; }
+  if (!target) {
+    const explicitHint = isExplicit && modelName ? ('未知模型名 "' + modelName + '"，可用: ' + Object.keys(modelMap).join(', ')) : '没有配置任何 provider';
+    sendErr(400, '请检查 config.json。' + explicitHint); complete('error', 'no provider'); return;
+  }
   const provider = config.providers[target.provider];
   if (provider.internal) { sendErr(400, 'echo 自检模型不支持 Responses API，请选择真实模型'); complete('error', 'echo unsupported'); return; }
   if (!effectiveKey(target.provider)) { sendErr(401, 'provider [' + target.provider + '] 缺少 API key，请运行 modelhub keys set ' + target.provider + ' <KEY>'); complete('error', 'missing key'); return; }
@@ -837,20 +871,35 @@ function serveStart(res) {
       res.end('<h1>start.html 未找到</h1><p>路径: ' + p + '</p><p>请将 assets/ 目录放在代理程序同目录下。</p>');
       return;
     }
+    // 注入真实 AUTH_TOKEN 到 Web UI，使得页面内 JS 能自动附带鉴权头
+    data = data.replace(/\/\*__AUTH_TOKEN__\*\/\s*const\s+AUTH\s*=\s*'[^']*'/, "const AUTH = '" + AUTH_TOKEN.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'");
+    // 注入实际端口到 HTML 的 CSP meta 标签
+    data = data.replace(/connect-src 'self' http:\/\/127\.0\.0\.1:\d+/g, "connect-src 'self' http://127.0.0.1:" + ACTIVE_PORT);
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Security-Policy': cspHeader() });
     res.end(data);
   });
 }
 
-// CORS：动态绑定当前端口，端口变化时跨域请求不会被浏览器拒绝
+// CORS：动态绑定当前端口，仅允许本机 Web UI 页面
 function cors(res, req) {
   const origin = req && req.headers && req.headers.origin;
   const allowedOrigin = 'http://127.0.0.1:' + ACTIVE_PORT;
   const localOrigin = 'http://localhost:' + ACTIVE_PORT;
-  const allowed = origin && (origin === allowedOrigin || origin === localOrigin || origin === 'null');
+  // 安全(B1): 移除了 null origin，防止 file:// HTML / 任意本机程序诱导调用
+  const allowed = origin && (origin === allowedOrigin || origin === localOrigin);
   res.setHeader('Access-Control-Allow-Origin', allowed ? origin : allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+}
+
+// 管理 API 鉴权：除 /health 和 API 转发端点外，所有 /api/* 需要 Bearer token
+function requireAuth(req, res) {
+  const auth = req.headers['authorization'] || '';
+  if (auth === 'Bearer ' + AUTH_TOKEN) return true;
+  // Web UI 的 Cookie/会话 token（管理页面自动携带 Authorization header）
+  res.writeHead(401, { 'Content-Type': 'application/json; charset=utf-8' });
+  res.end(JSON.stringify({ ok: false, error: 'unauthorized', message: '请设置 Authorization: Bearer <token> 头，token 可在启动日志或 ~/.modelhub/config.json 的 auth_token 字段中找到' }));
+  return false;
 }
 function sendJSON(res, obj) {
   res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -912,8 +961,14 @@ function writeClaudeSettings() {
   };
   let cfg = {};
   if (existed) {
-    try { cfg = JSON.parse(fs.readFileSync(CC_PATH, 'utf-8')); }
-    catch (e) { cfg = {}; /* JSONC 容错：解析失败则视为空对象重新合并 */ }
+    const raw = fs.readFileSync(CC_PATH, 'utf-8');
+    try { cfg = JSON.parse(raw); }
+    catch (e) {
+      // 安全(B3): JSON 解析失败时拒绝写入并展示详细错误，防止一次误触丢失原有配置/注释
+      const err = new Error('Claude Code 配置文件 (settings.json) 解析失败: ' + e.message + '。请手动修复该文件后再重试。');
+      err.code = 'JSON_PARSE_ERROR';
+      throw err;
+    }
   }
   cfg.env = Object.assign({}, cfg.env || {}, envKeys); // 仅合并 ModelHub key
   atomicWrite(CC_PATH, JSON.stringify(cfg, null, 2));
@@ -921,14 +976,19 @@ function writeClaudeSettings() {
 }
 
 // Codex：[model_providers.modelhub] 段文本（零依赖 TOML，逐行定位）
+// TOML 字符串转义：双引号 → \"，反斜杠 → \\
+function tomlEsc(s) {
+  return String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
 function codexModelhubSection(model) {
   return '\n[model_providers.modelhub]\n' +
          'name = "ModelHub"\n' +
-         'base_url = "' + PROXY_URL + '/v1"\n' +
-         'api_key = "' + AUTH_TOKEN + '"\n' +
+         'base_url = "' + tomlEsc(PROXY_URL) + '/v1"\n' +
+         'api_key = "' + tomlEsc(AUTH_TOKEN) + '"\n' +
          'wire_api = "responses"\n' +
          'models = ["deepseek-chat", "deepseek-reasoner", "glm-4-plus", "kimi-chat", "qwen-max"]\n' +
-         'default_model = "' + model + '"\n';
+         'default_model = "' + tomlEsc(model) + '"\n';
 }
 
 // Codex：局部修改 + 新增/覆盖段（不动其它 [段]）
@@ -1004,11 +1064,11 @@ function createServer() {
     if (req.method === 'GET' && (url === '/start.html')) { serveStart(res); return; }
     if (req.method === 'GET' && (url === '/' || url === '/ui' || url === '/ui.html' || url === '/start')) { serveStart(res); return; }
     if (req.method === 'GET' && url === '/health') { res.writeHead(200); res.end('OK'); return; }
-    if (req.method === 'GET' && url === '/models') {
-      sendJSON(res, { models: Object.keys(modelMap), providers: Object.keys(config.providers) });
-      return;
-    }
     // ---- 管理 API ----
+    // ---- 管理 API 鉴权（以下所有 /api/* 需要 Bearer token）- ---
+    if (url.startsWith('/api/')) {
+      if (!requireAuth(req, res)) return;
+    }
     if (req.method === 'GET' && url === '/api/models') {
       const providers = Object.keys(config.providers).map(name => {
         const p = config.providers[name];
@@ -1079,9 +1139,8 @@ function createServer() {
       const name = body.provider, key = body.key;
       if (!config.providers[name]) { res.writeHead(400); res.end(JSON.stringify({ error: 'unknown provider' })); return; }
       try {
-        fs.mkdirSync(path.dirname(KEYS_PATH), { recursive: true });
         if (key) keysFile[name] = key; else delete keysFile[name];
-        fs.writeFileSync(KEYS_PATH, JSON.stringify(keysFile, null, 2));
+        saveKeysFile(keysFile);
         sendJSON(res, { ok: true, configured: !!effectiveKey(name) });
       } catch (e) { res.writeHead(500); res.end(JSON.stringify({ error: e.message })); }
       return;
@@ -1101,6 +1160,11 @@ function createServer() {
         if (e.code === 'MISSING_FILE') {
           res.writeHead(409);
           res.end(JSON.stringify({ ok: false, code: 'MISSING_FILE', message: '~/.codex/config.toml 不存在：请先启动并登录 Codex 让它生成该文件，再回来点「更改配置文件」。' }));
+          return;
+        }
+        if (e.code === 'JSON_PARSE_ERROR') {
+          res.writeHead(400);
+          res.end(JSON.stringify({ ok: false, code: 'JSON_PARSE_ERROR', message: e.message }));
           return;
         }
         res.writeHead(500); res.end(JSON.stringify({ ok: false, error: e.message }));
@@ -1124,12 +1188,6 @@ function createServer() {
     }
     // ---- 停止代理 (CLI 调用) ----
     if (req.method === 'POST' && url === '/api/stop') {
-      const auth = req.headers['authorization'] || '';
-      if (auth !== 'Bearer ' + AUTH_TOKEN) {
-        res.writeHead(401, { 'Content-Type': 'application/json; charset=utf-8' });
-        res.end(JSON.stringify({ ok: false, error: 'unauthorized' }));
-        return;
-      }
       try { fs.writeFileSync(path.join(__dirname, 'modelhub.stop'), String(Date.now())); } catch (e) {}
       sendJSON(res, { ok: true, message: 'shutting down' });
       setTimeout(() => { try { fs.unlinkSync(PID_PATH); } catch(e){} server.close(); process.exit(0); }, 200);

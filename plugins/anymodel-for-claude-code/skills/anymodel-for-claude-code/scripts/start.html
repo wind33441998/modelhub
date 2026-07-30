@@ -292,7 +292,8 @@ default_model = "deepseek-chat"</pre>
 <script>
 // 兼容两种打开方式：同源(http)直接用相对路径；file:// 直接双击则指向本机代理
 const BASE = (location.protocol === 'file:') ? 'http://127.0.0.1:4000' : '';
-const AUTH = 'sk-local-proxy';
+// 启动时注入真实 token（见 serveStart 的字符串替换）；运行时不可改
+/*__AUTH_TOKEN__*/ const AUTH = 'sk-local-proxy';
 const STOP_URL = BASE + '/api/stop';
 
 // HTML 实体转义：防止 API 返回字段中的 < > & " ' 被当作标记执行（修复审计 M1 XSS）
@@ -303,7 +304,8 @@ function esc(s){
 }
 
 async function api(path, opts){
-  const res = await fetch(BASE + path, opts);
+  const headers = Object.assign({}, (opts && opts.headers) || {}, { 'Authorization': 'Bearer ' + AUTH });
+  const res = await fetch(BASE + path, Object.assign({}, opts, { headers }));
   let data = null;
   try { data = await res.json(); } catch(e){}
   return { ok: res.ok, status: res.status, data };

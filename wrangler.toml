@@ -1,0 +1,7 @@
+name = "modelhub"
+compatibility_date = "2026-07-29"
+
+[env.production]
+routes = [
+  { pattern = "claude-proxys.com", custom_domain = true }
+]

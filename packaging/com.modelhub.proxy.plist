@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    ModelHub 代理的 macOS 自启动配置 (launchd / LaunchAgent)
+    ---------------------------------------------------------------
+    安装：
+      cp com.modelhub.proxy.plist ~/Library/LaunchAgents/
+      launchctl load ~/Library/LaunchAgents/com.modelhub.proxy.plist
+    查看状态：
+      launchctl list | grep modelhub
+    日志：
+      ~/Library/Logs/modelhub/proxy.log  /  .err.log
+
+    说明：
+    - RunAtLoad + KeepAlive = 登录即启动、崩溃自动拉起（等价于 Windows 计划任务 :loop）。
+    - 视觉环境变量用机器级（EnvironmentVariables）注入，避免“set 不传给子进程”的 Windows 同类坑。
+    - ProgramArguments 里的 node 与 proxy.js 路径请按实际安装位置修改。
+  -->
+  <key>Label</key>
+  <string>com.modelhub.proxy</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/node</string>
+    <string>/opt/modelhub/lib/proxy.js</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>MODELHUB_DATA_DIR</key>
+    <string>~/.modelhub</string>
+    <key>MODELHUB_VISION_PROVIDER</key>
+    <string>siliconflow</string>
+    <key>MODELHUB_VISION_MODEL</key>
+    <string>Qwen/Qwen3-VL-8B-Instruct</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>WorkingDirectory</key>
+  <string>/opt/modelhub</string>
+  <key>StandardOutPath</key>
+  <string>~/Library/Logs/modelhub/proxy.log</string>
+  <key>StandardErrorPath</key>
+  <string>~/Library/Logs/modelhub/proxy.err.log</string>
+</dict>
+</plist>
