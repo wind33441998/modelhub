@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" style="background:#07090e">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ModelHub — Checkout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090e;--card:#111723;--border:#1e2740;--text:#edf2f7;--text-dim:#8896b0;--green:#10b981;--green-dim:#059669;--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;--disp:"Bricolage Grotesque",system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,monospace;--body:"DM Sans",system-ui,sans-serif;--maxw:560px;--r:16px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px}
+.wrap{width:100%;max-width:var(--maxw)}
+a.back{color:var(--text-dim);text-decoration:none;font-size:13px;margin-bottom:24px;display:inline-block}
+a.back:hover{color:var(--text)}
+.logo{font-family:var(--disp);font-weight:800;font-size:22px;text-align:center;margin-bottom:8px}
+.logo span{background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px;margin-top:16px}
+.tier-name{font-family:var(--disp);font-size:26px;font-weight:800}
+.price{font-family:var(--mono);font-size:34px;font-weight:700;color:var(--green);margin:8px 0}
+.price-sub{color:var(--text-dim);font-size:13px}
+.test-banner{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:var(--amber);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;margin-bottom:16px;text-align:center}
+label{display:block;font-size:13px;color:var(--text-dim);margin:16px 0 6px}
+input[type=email]{width:100%;padding:14px 16px;border-radius:10px;background:#0c101a;border:1px solid var(--border);color:var(--text);font-size:15px;font-family:var(--body)}
+input[type=email]:focus{outline:none;border-color:var(--green)}
+.btn{padding:14px 28px;border-radius:10px;font-weight:700;font-size:15px;border:none;cursor:pointer;width:100%;margin-top:18px}
+.btn-primary{background:var(--green);color:#000}
+.btn-primary:hover{box-shadow:0 0 24px rgba(16,185,129,.3)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+#paypal-btn{min-height:48px;margin-top:14px}
+#status{margin-top:16px;font-size:14px;min-height:20px}
+.ok{color:var(--green)} .err{color:var(--red)} .info{color:var(--text-dim)}
+.license-box{background:#0c101a;border:1px solid var(--green);border-radius:10px;padding:16px;margin-top:18px;text-align:center}
+.license-key{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--green);margin:8px 0;word-break:break-all}
+.copy-btn{background:var(--green);color:#000;border:none;padding:8px 18px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;margin-top:6px}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--text-dim);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hidden{display:none}
+footer{margin-top:32px;color:var(--text-dim);font-size:12px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">&larr; Back to ModelHub</a>
+  <div class="logo"><span>◆</span> ModelHub</div>
+
+  <div class="card" id="main">
+    <div id="testBanner" class="test-banner hidden">SANDBOX TEST MODE — you will be charged $0.01 with a PayPal sandbox account.</div>
+    <div class="tier-name" id="tierName">Loading…</div>
+    <div class="price" id="price">—</div>
+    <div class="price-sub" id="priceSub"></div>
+
+    <div id="emailWrap">
+      <label for="email">Your email (license will be sent here)</label>
+      <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+    </div>
+
+    <div id="paypal-btn"></div>
+
+    <button class="btn btn-primary hidden" id="trialBtn">Get Free Trial →</button>
+
+    <div id="status" class="info"></div>
+
+    <div id="licenseWrap" class="license-box hidden">
+      <div style="font-size:13px;color:var(--text-dim)">Your license key</div>
+      <div class="license-key" id="licenseKey"></div>
+      <button class="copy-btn" id="copyBtn">Copy</button>
+      <div style="margin-top:12px"><a href="/dashboard" style="color:var(--green);font-size:13px;text-decoration:none">Open Dashboard →</a></div>
+    </div>
+  </div>
+
+  <footer>Not affiliated with Anthropic, OpenAI, or any API provider. Payments via PayPal.</footer>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const TIER = params.get("tier") || "yearly";
+const TEST = params.get("test") === "1" || params.get("test") === "true";
+const REF = params.get("ref") || localStorage.getItem("mh_ref") || "";
+const PRICES = { trial: 0, monthly: 3, yearly: 29, lifetime: 69 };
+const TIER_LABEL = { trial: "Free Trial", monthly: "Monthly", yearly: "Yearly", lifetime: "Lifetime" };
+const TIER_DAYS = { trial: "7 days free", monthly: "per month", yearly: "per year", lifetime: "one-time" };
+
+const $ = (id) => document.getElementById(id);
+const setStatus = (msg, cls) => { $("status").className = cls || "info"; $("status").innerHTML = msg; };
+
+if (!PRICES[TIER]) { $("tierName").textContent = "Unknown tier"; setStatus("Invalid tier in URL.", "err"); }
+else {
+  $("tierName").textContent = TIER_LABEL[TIER] + " License";
+  $("price").textContent = TIER === "trial" ? "$0" : "$" + PRICES[TIER];
+  $("priceSub").textContent = TIER_DAYS[TIER];
+  if (TEST) $("testBanner").classList.remove("hidden");
+}
+
+// Persist referral attribution
+if (params.get("ref")) localStorage.setItem("mh_ref", params.get("ref"));
+
+async function boot() {
+  if (!PRICES[TIER]) return;
+  try {
+    const cfg = await (await fetch("/api/paypal-config")).json();
+    if (TIER === "trial") {
+      $("emailWrap").classList.remove("hidden");
+      $("trialBtn").classList.remove("hidden");
+      $("trialBtn").onclick = doTrial;
+      return;
+    }
+    if (!cfg.clientId) {
+      setStatus("PayPal is not configured yet (clientId missing). Set PAYPAL_* env vars on Vercel.", "err");
+      return;
+    }
+    loadPayPal(cfg.clientId);
+  } catch (e) {
+    setStatus("Could not load checkout config: " + e.message, "err");
+  }
+}
+
+function loadPayPal(clientId) {
+  const s = document.createElement("script");
+  s.src = "https://www.paypal.com/sdk/js?client-id=" + encodeURIComponent(clientId) + "&currency=USD";
+  s.onload = renderButton;
+  s.onerror = () => setStatus("Failed to load PayPal SDK.", "err");
+  document.head.appendChild(s);
+}
+
+function renderButton() {
+  if (!window.paypal) { setStatus("PayPal SDK failed to initialize.", "err"); return; }
+  paypal.Buttons({
+    style: { layout: "vertical", color: "gold", shape: "rect", label: "paypal" },
+    createOrder: async () => {
+      const email = $("email").value.trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { setStatus("Please enter a valid email first.", "err"); throw new Error("invalid email"); }
+      setStatus('<span class="spinner"></span>Creating order…', "info");
+      const r = await fetch("/api/paypal-create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier: TIER, email, test: TEST }),
+      });
+      const j = await r.json();
+      if (!r.ok) { setStatus(j.error || "Order creation failed.", "err"); throw new Error(j.error || "create failed"); }
+      setStatus("Order created. Complete payment in the PayPal window.", "info");
+      return j.orderID;
+    },
+    onApprove: async (data) => {
+      setStatus('<span class="spinner"></span>Payment received. Issuing license…', "info");
+      const email = $("email").value.trim();
+      const r = await fetch("/api/paypal-capture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderID: data.orderID, tier: TIER, email, ref: REF, test: TEST }),
+      });
+      const j = await r.json();
+      if (!r.ok) { setStatus(j.error || "Capture failed.", "err"); return; }
+      showLicense(j);
+    },
+    onError: (err) => { setStatus("PayPal error: " + (err?.message || "please retry"), "err"); },
+    onCancel: () => { setStatus("Payment cancelled.", "info"); },
+  }).render("#paypal-btn");
+}
+
+async function doTrial() {
+  const email = $("email").value.trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { setStatus("Please enter a valid email first.", "err"); return; }
+  setStatus('<span class="spinner"></span>Creating your free trial…', "info");
+  const r = await fetch("/api/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, tier: "trial" }),
+  });
+  const j = await r.json();
+  if (!r.ok) { setStatus(j.error || "Trial creation failed.", "err"); return; }
+  showLicense({ license_key: j.license_key, tier: "trial", days: 7, label: "Trial" });
+}
+
+function showLicense(j) {
+  $("paypal-btn").classList.add("hidden");
+  $("trialBtn")?.classList.add("hidden");
+  $("licenseWrap").classList.remove("hidden");
+  $("licenseKey").textContent = j.license_key;
+  localStorage.setItem("mh_mycode", j.license_key);
+  setStatus(j.alreadyIssued ? "This payment was already used — here is your license." : "Payment complete! Your license is ready.", "ok");
+  $("copyBtn").onclick = () => {
+    navigator.clipboard.writeText(j.license_key).then(() => { $("copyBtn").textContent = "Copied!"; setTimeout(() => ($("copyBtn").textContent = "Copy"), 1500); });
+  };
+}
+
+boot();
+</script>
+</body>
+</html>

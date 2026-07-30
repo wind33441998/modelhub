@@ -1,16 +1,19 @@
 // ModelHub License Server — Vercel Serverless Handler
 // Uses Supabase (free PostgreSQL) for persistent storage
 
-const { createClient } = require("@supabase/supabase-js");
-
-// Supabase connection (set in Vercel env vars)
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
-
+// Supabase connection (set in Vercel env vars). Lazily required so the function
+// still loads when @supabase/supabase-js is absent (falls back to local JSON).
 let supabase = null;
 function getDb() {
-  if (!supabase && supabaseUrl && supabaseKey) {
-    supabase = createClient(supabaseUrl, supabaseKey);
+  if (!supabase) {
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_KEY;
+    if (url && key) {
+      try {
+        const { createClient } = require("@supabase/supabase-js");
+        supabase = createClient(url, key);
+      } catch (e) { supabase = null; }
+    }
   }
   return supabase;
 }
@@ -152,7 +155,7 @@ async function handleVerify(body) {
     const existing = false; // simplified for now
     if (devCount >= t.devices) {
       // Check if this HW ID is already registered
-      return { status: 200, data: { valid: true, warning: "Device limit reached (" + t.devices + ")", ... }};
+      return { status: 200, data: { valid: true, warning: "Device limit reached (" + t.devices + ")" } };
     }
     await store.registerDevice(body.license_key, body.hw_id, body.device_name || "");
   }

@@ -2,12 +2,22 @@
   "version": 2,
   "builds": [
     { "src": "api/health.js", "use": "@vercel/node" },
+    { "src": "api/license.js", "use": "@vercel/node" },
+    { "src": "api/paypal-config.js", "use": "@vercel/node" },
+    { "src": "api/paypal-create.js", "use": "@vercel/node" },
+    { "src": "api/paypal-capture.js", "use": "@vercel/node" },
     { "src": "site/**", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/health", "dest": "/api/health.js" },
     { "src": "/api/health", "dest": "/api/health.js" },
+    { "src": "/api/verify", "dest": "/api/license.js" },
+    { "src": "/api/register", "dest": "/api/license.js" },
+    { "src": "/api/paypal-config", "dest": "/api/paypal-config.js" },
+    { "src": "/api/paypal-create", "dest": "/api/paypal-create.js" },
+    { "src": "/api/paypal-capture", "dest": "/api/paypal-capture.js" },
     { "src": "/dashboard", "dest": "/site/dashboard.html" },
+    { "src": "/checkout", "dest": "/site/checkout.html" },
+    { "src": "/ref/(.*)", "dest": "/?ref=$1" },
     { "src": "/(.*)", "dest": "/site/$1" }
   ]
 }

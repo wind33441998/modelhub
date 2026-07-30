@@ -194,7 +194,7 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 <div class="grid-3 r d4">
 <div class="pain-card"><div class="icon">💰</div><h4>Claude Code Too Expensive</h4><p>Anthropic API costs add up fast. Route Claude Code to DeepSeek and cut your bill by 99%. Same tool use, same workflow.</p></div>
 <div class="pain-card"><div class="icon">🔌</div><h4>Need a Claude Code Proxy</h4><p>Set up a local proxy for Claude Code in 2 minutes. No Python, no Docker. Just download the EXE and run.</p></div>
-<div class="pain-card"><div class="icon">🌍</div><h4>Claude Code API Banned</h4><p>Region restrictions or billing issues? ModelHub runs locally with your own API keys. No more account problems.</p></div>
+<div class="pain-card"><div class="icon">🌍</div><h4>Claude Code API Limited</h4><p>Region restrictions or billing issues? ModelHub runs locally with your own API keys. No more account problems.</p></div>
 <div class="pain-card"><div class="icon">🔀</div><h4>Want Multiple Models</h4><p>Switch between DeepSeek, Qwen, Kimi, GLM, Gemini, Groq without restarting. One panel to rule them all.</p></div>
 <div class="pain-card"><div class="icon">🔒</div><h4>Self-Hosted Proxy</h4><p>Your code and API keys never leave your machine. Privacy-first architecture. Data doesn't cross third-party servers.</p></div>
 <div class="pain-card"><div class="icon">⚡</div><h4>Codex Needs Cheap Models</h4><p>Codex users: route to DeepSeek, Qwen, or GLM via ModelHub. Full Responses API + streaming included.</p></div>
@@ -225,19 +225,19 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 <div class="pricing-grid r d4">
 <div class="pricing-card"><div class="tier">Trial</div><div class="price">$0</div><div class="price-sub">7 days free</div>
 <ul><li><span class="ck">✓</span> 1 provider (DeepSeek)</li><li><span class="ck">✓</span> 4 models</li><li><span class="no">✗</span> 1 device</li><li><span class="ck">✓</span> Full management UI</li></ul>
-<a href="#" class="btn-pricing sec">Free Trial →</a><div class="trial-badge">No credit card needed</div></div>
+<a href="/checkout.html?tier=trial" class="btn-pricing sec">Free Trial →</a><div class="trial-badge">No credit card needed</div></div>
 
 <div class="pricing-card"><div class="tier">Monthly</div><div class="price">$3</div><div class="price-sub">per month</div>
 <ul><li><span class="ck">✓</span> All 8 providers</li><li><span class="ck">✓</span> All 24 models</li><li><span class="ck">✓</span> Up to 3 devices</li><li><span class="ck">✓</span> Email support</li></ul>
-<a href="#" class="btn-pricing sec">Subscribe $3 →</a></div>
+<a href="/checkout.html?tier=monthly" class="btn-pricing sec">Subscribe $3 →</a></div>
 
 <div class="pricing-card featured"><div class="tier">Yearly</div><div class="price">$29</div><div class="price-sub">per year <span style="color:#10b981;font-size:11px">(Save 70%)</span></div>
 <ul><li><span class="ck">✓</span> All 8 providers</li><li><span class="ck">✓</span> All 24 models</li><li><span class="ck">✓</span> Up to 5 devices</li><li><span class="ck">✓</span> Unlimited logs</li></ul>
-<a href="#" class="btn-pricing primary">Buy $29 →</a><div class="trial-badge">Less than 2 hours of Claude API cost</div></div>
+<a href="/checkout.html?tier=yearly" class="btn-pricing primary">Buy $29 →</a><div class="trial-badge">Less than 2 hours of Claude API cost</div></div>
 
 <div class="pricing-card"><div class="tier">Lifetime</div><div class="price">$69</div><div class="price-sub">one-time</div>
 <ul><li><span class="ck">✓</span> All 8 providers</li><li><span class="ck">✓</span> All 24 models</li><li><span class="ck">✓</span> Up to 10 devices</li><li><span class="ck">✓</span> Forever updates</li></ul>
-<a href="#" class="btn-pricing sec">Buy $69 →</a></div>
+<a href="/checkout.html?tier=lifetime" class="btn-pricing sec">Buy $69 →</a></div>
 </div>
 </div>
 </section>
@@ -275,7 +275,7 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 <div style="font-size:11px;color:var(--green);margin-top:4px">You get 6 months free</div>
 </div>
 </div>
-<div class="referral-box"><span style="font-size:12px">claude-proxys.com/ref/YOUR_CODE</span><button class="copy" onclick="navigator.clipboard.writeText('claude-proxys.com/ref/YOUR_CODE').then(()=>this.textContent='Copied!')">Copy Link</button></div></div>
+<div class="referral-box"><span id="refLink" style="font-size:12px">claude-proxys.com/ref/YOUR_CODE</span><button class="copy" id="refCopy">Copy Link</button></div></div>
 </div>
 </section>
 
@@ -297,8 +297,32 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 <p>&copy; 2026 ModelHub. <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Docs</a></p>
 <p style="font-size:12px">Not affiliated with Anthropic, OpenAI, or any API provider.</p>
 </div></footer>
+<script>
+(function(){
+  var params = new URLSearchParams(location.search);
+  var incoming = params.get('ref');
+  if(incoming) localStorage.setItem('mh_ref', incoming);
+  var myCode = localStorage.getItem('mh_mycode');
+  var myRef = localStorage.getItem('mh_ref');
+  if(myRef){
+    document.querySelectorAll('.btn-pricing').forEach(function(a){
+      var u = new URL(a.href, location.origin);
+      if(!u.searchParams.get('ref')){ u.searchParams.set('ref', myRef); a.href = u.pathname + u.search; }
+    });
+  }
+  var linkEl = document.getElementById('refLink');
+  var copyEl = document.getElementById('refCopy');
+  if(linkEl && copyEl){
+    var code = myCode || 'YOUR_CODE';
+    var url = location.origin + '/ref/' + code;
+    linkEl.textContent = 'claude-proxys.com/ref/' + code;
+    copyEl.onclick = function(){ navigator.clipboard.writeText(url).then(function(){ copyEl.textContent='Copied!'; setTimeout(function(){ copyEl.textContent='Copy Link'; },1500); }); };
+  }
+})();
+</script>
 </body>
 </html>
+
 
 
 
