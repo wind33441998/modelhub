@@ -4,16 +4,14 @@
 // Supabase connection (set in Vercel env vars). Lazily required so the function
 // still loads when @supabase/supabase-js is absent (falls back to local JSON).
 let supabase = null;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 function getDb() {
-  if (!supabase) {
-    const url = process.env.SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_KEY;
-    if (url && key) {
-      try {
-        const { createClient } = require("@supabase/supabase-js");
-        supabase = createClient(url, key);
-      } catch (e) { supabase = null; }
-    }
+  if (!supabase && SUPABASE_URL && SUPABASE_KEY) {
+    try {
+      const { createClient } = require("@supabase/supabase-js");
+      supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch (e) { supabase = null; }
   }
   return supabase;
 }
@@ -36,7 +34,7 @@ function writeStore(name, data) {
 const store = {
   async findLicense(key) {
     if (getDb()) {
-      const { data } = await getDb().from("licenses").select("*").eq("license_key", key).single();
+      const { data } = await getDb().from("licenses").select("*").eq("license_key", key).maybeSingle();
       return data || null;
     }
     return readStore("licenses").find((l) => l.license_key === key) || null;
@@ -87,9 +85,16 @@ const store = {
     }
     return { license_key, hw_id };
   },
+  async getDevices() {
+    if (getDb()) {
+      const { data } = await getDb().from("devices").select("*");
+      return data || [];
+    }
+    return readStore("devices");
+  },
   async getReferral(code) {
     if (getDb()) {
-      const { data } = await getDb().from("referrals").select("*").eq("code", code).single();
+      const { data } = await getDb().from("referrals").select("*").eq("code", code).maybeSingle();
       return data || null;
     }
     return readStore("referrals").find((r) => r.code === code) || null;
@@ -152,10 +157,9 @@ async function handleVerify(body) {
   const t = TIERS[dbLic.tier];
   if (body.hw_id) {
     const devCount = await store.countDevices(body.license_key);
-    const existing = false; // simplified for now
-    if (devCount >= t.devices) {
-      // Check if this HW ID is already registered
-      return { status: 200, data: { valid: true, warning: "Device limit reached (" + t.devices + ")" } };
+    const existing = (await store.getDevices()).find((d) => d.license_key === body.license_key && d.hw_id === body.hw_id);
+    if (!existing && devCount >= t.devices) {
+      return { status: 200, data: { valid: false, error: "Device limit reached (" + t.devices + ")", device_limit: t.devices, device_count: devCount } };
     }
     await store.registerDevice(body.license_key, body.hw_id, body.device_name || "");
   }
@@ -169,7 +173,7 @@ module.exports = async (req, res) => {
   const path = url.pathname;
 
   try {
-    if (path === "/api/health" && req.method === "GET") return json(res, 200, { ok: true, mode: supabaseUrl ? "supabase" : "local-json" });
+    if (path === "/api/health" && req.method === "GET") return json(res, 200, { ok: true, mode: SUPABASE_URL ? "supabase" : "local-json" });
     if (path === "/api/verify" && req.method === "POST") {
       const body = JSON.parse(req.body || "{}");
       const r = await handleVerify(body);

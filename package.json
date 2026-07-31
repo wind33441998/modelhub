@@ -34,7 +34,7 @@
   },
   "pkg": {
     "scripts": "bin/modelhub.js",
-    "assets": [],
+    "assets": ["assets/**/*"],
     "targets": [
       "node18-win-x64",
       "node18-mac-x64"

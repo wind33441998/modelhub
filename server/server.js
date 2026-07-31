@@ -1,12 +1,11 @@
 // ModelHub License Server — Main API
 
 const http = require("http");
-const crypto = require("crypto");
-const { generateLicense, signLicense, TIERS } = require("./lib/crypto");
+const { generateLicense, signLicense, verifyIntegrity, TIERS } = require("./lib/crypto");
 const store = require("./lib/store");
+const { handleGumroadWebhook } = require("./webhook");
 
 const PORT = process.env.PORT || 3001;
-const GUMROAD_SECRET = process.env.GUMROAD_SECRET || "dev-gumroad-secret";
 
 function json(res, code, data) {
   res.writeHead(code, {
@@ -54,6 +53,13 @@ async function handleVerify(req, res) {
   const dbLic = store.findLicense(license_key);
   if (!dbLic || !dbLic.active) return json(res, 200, { valid: false, error: "License key not found or deactivated" });
 
+  // Integrity check (Bug #2): reject tampered records. Records issued before
+  // the integrity field existed have no `integrity` → skip (backward compat).
+  if (dbLic.integrity) {
+    const ok = verifyIntegrity(dbLic.license_key, dbLic.email, dbLic.tier, dbLic.issued_at, dbLic.integrity);
+    if (!ok) return json(res, 200, { valid: false, error: "License integrity check failed" });
+  }
+
   const expiresAt = getExpiry(dbLic);
   const now = Date.now();
   if (now >= expiresAt) return json(res, 200, { valid: false, error: "License expired" });
@@ -93,10 +99,11 @@ async function handleRegister(req, res) {
   if (existing) return json(res, 200, { ok: true, license_key: existing.license_key, note: "Already registered" });
 
   const license_key = generateLicense();
-  const integrity = signLicense(license_key, email, tier);
+  const issuedAt = Date.now();
+  const integrity = signLicense(license_key, email, tier, issuedAt);
   store.addLicense({
     license_key, email, tier,
-    issued_at: Date.now(),
+    issued_at: issuedAt,
     integrity,
     gumroad_transaction_id: gumroad_transaction_id || "",
     referral_extra_days: 0,
@@ -138,53 +145,7 @@ async function handleReferralApply(req, res) {
 }
 
 // ─── POST /api/webhook/gumroad ───
-async function handleGumroadWebhook(req, res) {
-  const { raw, body } = await readBody(req);
-  const sig = req.headers["x-gumroad-signature"];
-  // Gumroad signs the RAW request body with the webhook secret (HMAC-SHA256)
-  if (GUMROAD_SECRET && GUMROAD_SECRET !== "dev-gumroad-secret" && sig) {
-    const expected = crypto.createHmac("sha256", GUMROAD_SECRET).update(raw).digest("hex");
-    if (sig !== expected) return json(res, 401, { ok: false, error: "Invalid signature" });
-  }
-
-  // Gumroad sends form-encoded; field is product_permalink, may be "/modelhub-monthly" or a full URL
-  const email = body.email;
-  const permalink = body.product_permalink || body.permalink || "";
-  const tierKey = permalink.split("/").filter(Boolean).pop() || "";
-  const tierMap = { "modelhub-trial": "trial", "modelhub-monthly": "monthly", "modelhub-yearly": "yearly", "modelhub-lifetime": "lifetime" };
-  const tier = tierMap[tierKey] || "monthly";
-
-  if (!email) return json(res, 400, { ok: false, error: "Missing email in webhook payload" });
-
-  // Idempotency: don't issue a duplicate license for the same email+tier
-  const existing = store.getLicenses().find((l) => l.email === email && l.tier === tier);
-  if (existing) return json(res, 200, { ok: true, license_key: existing.license_key, note: "Already issued" });
-
-  // Resolve referral code: webhook custom field first, else pending association by email
-  const refCode = body.referred_by || body.ref || store.getPendingReferralByEmail(email) || null;
-
-  const license_key = generateLicense();
-  const integrity = signLicense(license_key, email, tier);
-  store.addLicense({
-    license_key, email, tier,
-    issued_at: Date.now(),
-    integrity,
-    gumroad_transaction_id: body.sale_id || body.id || "",
-    gumroad_purchase: true,
-    referred_by: refCode || "",
-    referral_extra_days: 0,
-    active: true,
-  });
-
-  // Issue referral reward ONLY after real payment, with anti-fraud checks
-  if (refCode) {
-    const award = store.awardReferral(refCode, email, tier);
-    if (award.awarded) console.log("[referral] awarded", award.reward_days, "days to", award.owner_email, "via", refCode);
-    store.removePendingReferral(email);
-  }
-
-  json(res, 200, { ok: true, license_key, referral_awarded: !!refCode });
-}
+// 实现已统一收归 ./webhook.js（单一权威实现），此处仅挂载路由。
 
 // ─── GET /api/license/:key ───
 async function handleLicenseInfo(req, res, urlParts) {

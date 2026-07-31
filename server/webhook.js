@@ -1,102 +1,128 @@
-// ModelHub Gumroad Webhook — 处理购买通知，自动发放 License Key
-// 部署为 Vercel Serverless Function 或 Node.js 独立服务
+// ModelHub Gumroad Webhook — 单一权威实现 (single source of truth)
+//
+// 职责：Gumroad 付款通知 → 自动发放 License Key。
+// 同时被 server/server.js 挂载（路由 /api/webhook/gumroad）以及可被 `node server/webhook.js`
+// 直接以独立测试服务运行（:3002）。业务逻辑只有这一份，避免与 server.js 内联副本漂移。
+//
+// 安全：校验 Gumroad 签名 (X-Gumroad-Signature = HMAC-SHA256 over RAW body)。
+//   - dev 模式（GUMROAD_SECRET 未设或为默认值）：不强制验签，仅告警（便于本地联调）。
+//   - 生产模式（配置了真实密钥）：缺签名头或签名不匹配 → 一律 401 拒绝（不再"跳过"）。
 
 const crypto = require("crypto");
+const GUMROAD_SECRET = process.env.GUMROAD_SECRET || "dev-gumroad-secret";
 
-// ─── HMAC License Key 生成 ───
-const HMAC_KEY = process.env.MODELHUB_HMAC_KEY || "dev-hmac-key-change-in-prod";
+// 与主授权服务复用同一套存储 + 签名逻辑，保证行为一致
+const store = require("./lib/store");
+const { signLicense, generateLicense } = require("./lib/crypto");
 
-function generateLicenseKey() {
-  const raw = crypto.randomBytes(8).toString("hex").toUpperCase();
-  return "MHUB-" + raw.match(/.{1,4}/g).join("-");
-}
-
-const TIERS = {
-  trial:    { days: 7,    devices: 1,  label: "Trial" },
-  monthly:  { days: 30,   devices: 3,  label: "Monthly" },
-  yearly:   { days: 365,  devices: 5,  label: "Yearly" },
-  lifetime: { days: 36500, devices: 10, label: "Lifetime" },
-};
-
-// Gumroad permalink → tier 映射
+// Gumroad product_permalink → 内部 tier 映射
 const PERMALINK_MAP = {
-  "modelhub-trial":     "trial",
-  "modelhub-monthly":   "monthly",
-  "modelhub-yearly":    "yearly",
-  "modelhub-lifetime":  "lifetime",
-  "swpiot":             "trial",   // 主商品 ID 默认试���
+  "modelhub-trial": "trial",
+  "modelhub-monthly": "monthly",
+  "modelhub-yearly": "yearly",
+  "modelhub-lifetime": "lifetime",
 };
 
-// ─── Gumroad Webhook Handler ───
-// Gumroad sends POST with form-encoded data on sale/refund/subscription events
-async function handleWebhook(body, headers) {
-  const { email, product_permalink, license_key, sale_id, timestamp, action } = body;
-
-  // Map to tier
-  const tier = PERMALINK_MAP[product_permalink] || "monthly";
-
-  // Generate or use Gumroad's built-in license key
-  const lk = license_key || generateLicenseKey();
-
-  console.log(`[Webhook] ${action || "sale"} | ${email} | ${tier} | ${lk}`);
-
-  // Store in database (implement based on your storage backend)
-  // await store.addLicense({ license_key: lk, email, tier, issued_at: Date.now(), ... });
-
-  return { ok: true, license_key: lk, tier };
+// 读取原始请求体（用于验签）。同时兼容被 server.js 引入与独立运行两种场景。
+function readRawBody(req) {
+  return new Promise((resolve) => {
+    let raw = "";
+    req.on("data", (c) => (raw += c));
+    req.on("end", () => resolve(raw));
+  });
 }
 
-// ─── Vercel Serverless Handler ───
-module.exports = async (req, res) => {
-  // CORS
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+function parseBody(raw, headers) {
+  if (!raw) return {};
+  const ct = String(headers["content-type"] || "").toLowerCase();
+  const tryForm = () => { try { return Object.fromEntries(new URLSearchParams(raw)); } catch (e) { return null; } };
+  const tryJson = () => { try { return JSON.parse(raw); } catch (e) { return null; } };
+  if (ct.includes("application/json")) return tryJson() || {};
+  if (ct.includes("application/x-www-form-urlencoded")) return tryForm() || {};
+  return tryJson() || tryForm() || {};
+}
 
-  if (req.method === "OPTIONS") return res.status(204).end("");
+// 校验 Gumroad HMAC 签名。
+// 返回：true(合法) | false(非法，应拒绝) | null(dev 模式，不强制)。
+function verifyGumroad(rawBody, signature, secret) {
+  if (!secret || secret === "dev-gumroad-secret") return null; // dev：不强制
+  if (!signature) return false; // 生产：缺签名头 → 拒绝
+  const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
+  return signature === expected;
+}
 
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+function sendJson(res, code, obj) {
+  res.writeHead(code, {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  });
+  res.end(JSON.stringify(obj));
+}
 
-  try {
-    // Gumroad sends URL-encoded or JSON
-    let body;
-    if (req.headers["content-type"]?.includes("application/json")) {
-      body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-    } else {
-      // URL-encoded form data
-      const raw = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
-      body = Object.fromEntries(new URLSearchParams(raw));
-    }
+// 核心处理：验签 → 解析 → 幂等发放 → 推荐发奖。幂等：同 email+tier 不重复发证。
+async function handleGumroadWebhook(req, res) {
+  if (req.method !== "POST") return sendJson(res, 405, { ok: false, error: "Method not allowed" });
 
-    const result = await handleWebhook(body, req.headers);
-    res.status(200).json(result);
-  } catch (e) {
-    console.error("[Webhook Error]", e.message);
-    res.status(500).json({ error: e.message });
+  const raw = await readRawBody(req);
+  const body = parseBody(raw, req.headers);
+  const sig = req.headers["x-gumroad-signature"] || req.headers["X-Gumroad-Signature"];
+
+  const sigOk = verifyGumroad(raw, sig, GUMROAD_SECRET);
+  if (sigOk === false) return sendJson(res, 401, { ok: false, error: "Invalid signature" });
+  if (sigOk === null) {
+    console.warn("[Webhook] dev mode: Gumroad signature verification skipped (set GUMROAD_SECRET in production)");
   }
-};
 
-// ─── Standalone test ───
+  const email = typeof body.email === "string" ? body.email.trim() : "";
+  const permalink = body.product_permalink || body.permalink || "";
+  const tierKey = String(permalink).split("/").filter(Boolean).pop() || "";
+  const tier = PERMALINK_MAP[tierKey] || "monthly";
+
+  if (!email) return sendJson(res, 400, { ok: false, error: "Missing email in webhook payload" });
+
+  // 幂等：同 email+tier 已存在则直接返回，避免重复发证
+  const existing = store.getLicenses().find((l) => l.email === email && l.tier === tier);
+  if (existing) return sendJson(res, 200, { ok: true, license_key: existing.license_key, note: "Already issued", tier });
+
+  // 推荐码解析：webhook 自定义字段优先，否则按邮箱匹配申请意图
+  const refCode = body.referred_by || body.ref || store.getPendingReferralByEmail(email) || null;
+
+  const license_key = generateLicense();
+  const issuedAt = Date.now();
+  const integrity = signLicense(license_key, email, tier, issuedAt); // 共享时间戳 → 可被 verifyIntegrity 校验
+  store.addLicense({
+    license_key, email, tier,
+    issued_at: issuedAt,
+    integrity,
+    gumroad_transaction_id: body.sale_id || body.id || "",
+    gumroad_purchase: true,
+    referred_by: refCode || "",
+    referral_extra_days: 0,
+    active: true,
+  });
+
+  // 仅在真实付款后发推荐奖励（防刷逻辑在 store.awardReferral 内）
+  if (refCode) {
+    const award = store.awardReferral(refCode, email, tier);
+    if (award && award.awarded) console.log("[referral] awarded", award.reward_days, "days to", award.owner_email, "via", refCode);
+    store.removePendingReferral(email);
+  }
+
+  return sendJson(res, 200, { ok: true, license_key, tier, referral_awarded: !!refCode });
+}
+
+module.exports = { handleGumroadWebhook, verifyGumroad };
+
+// ─── 独立测试服务：node server/webhook.js ───
+// 仅用于本地联调，直接复用上面的 handleGumroadWebhook（不重复实现逻辑）。
 if (require.main === module) {
   const http = require("http");
-  http.createServer((req, res) => {
-    let data = "";
-    req.on("data", c => data += c);
-    req.on("end", async () => {
-      try {
-        const result = await handleWebhook(
-          Object.fromEntries(new URLSearchParams(data)),
-          req.headers
-        );
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(result));
-      } catch (e) {
-        res.writeHead(500);
-        res.end(JSON.stringify({ error: e.message }));
-      }
-    });
-  }).listen(3002, () => {
-    console.log("Gumroad Webhook test server running on http://localhost:3002");
-    console.log("Configure Gumroad to POST to: http://YOUR_SERVER:3002/api/webhook/gumroad");
+  const PORT = process.env.WEBHOOK_TEST_PORT || 3002;
+  http.createServer((req, res) => handleGumroadWebhook(req, res)).listen(PORT, () => {
+    console.log(`Gumroad Webhook test server on http://localhost:${PORT}`);
+    console.log('POST form: email=a@b.com&product_permalink=/modelhub-lifetime');
+    console.log("Dev mode (no GUMROAD_SECRET): signature check skipped. Set GUMROAD_SECRET to enforce.");
   });
 }

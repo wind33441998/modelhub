@@ -22,9 +22,12 @@ function generateLicense() {
   return "MHUB-" + parts;
 }
 
-// Create an integrity token (HMAC) from license key + email + tier + issuedAt
-function signLicense(license_key, email, tier) {
-  const payload = [license_key, email, tier, Date.now()].join("|");
+// Create an integrity token (HMAC) from license key + email + tier + issuedAt.
+// issuedAt MUST be supplied by the caller so signing and verification share the
+// exact same timestamp; otherwise verifyIntegrity can never match (Bug #2).
+function signLicense(license_key, email, tier, issuedAt) {
+  const ts = issuedAt || Date.now();
+  const payload = [license_key, email, tier, ts].join("|");
   return crypto.createHmac("sha256", HMAC_KEY).update(payload).digest("hex");
 }
 
