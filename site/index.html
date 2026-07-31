@@ -4,12 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModelHub – Run Claude Code & Codex on DeepSeek, Qwen, Kimi, GLM | 97% Cheaper</title>
-<meta name="description" content="Claude Code & Codex proxy for Mac & Windows. Supports DeepSeek, Qwen, Kimi, GLM, Gemini, Groq. Replace expensive Anthropic/OpenAI API. Download EXE or Mac binary. $29 one-time license.">
-<meta name="keywords" content="claude code proxy, claude code deepseek, codex proxy, codex deepseek, claude code alternative, use deepseek with claude code, mac ai proxy, windows ai gateway">
+<meta name="description" content="ModelHub is a local gateway that runs Claude Code & Codex on cheap and free Chinese AI models via your own API keys (BYOK). Get free model credits from DeepSeek, Zhipu GLM, SiliconFlow, Qwen, Kimi, Volcengine, Baidu, Tencent. No VPN. $29 one-time license.">
+<meta name="keywords" content="claude code proxy, codex proxy, claude code deepseek, free claude code, free codex, free ai models, free tokens, free api, free model credits, cheap ai models, cheap api, byok, no vpn, claude code alternative, 获取免费模型, 免费模型, 免费token, 免费API, 免费额度, 中文免费token, 免费Claude Code, 免费Codex, 便宜模型, 便宜API, 国内模型, 国内AI模型, 国产模型, Claude Code 国内, Claude Code 免费, Codex 国内, 免VPN, 无需VPN, 免费大模型, 智谱免费, 硅基流动免费, 通义千问免费, DeepSeek免费, 模型网关, API转发, 模型聚合, 免费GLM, 免费Qwen, 免费Kimi, free deepseek, free qwen, free glm, free kimi, anthropic to openai, model gateway">
 <meta name="theme-color" content="#07090e">
 <meta property="og:title" content="ModelHub – Run Claude Code & Codex on Any Model. Download for Mac & Windows.">
 <meta property="og:description" content="Local AI proxy for Claude Code & Codex. Mac + Windows. Supports DeepSeek, Qwen, Kimi, GLM, Gemini, Groq. $29 one-time.">
 <meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="zh_CN">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -125,6 +127,10 @@ footer{border-top:1px solid var(--border);padding:40px 0;margin-top:40px}
 footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
 footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 .menu-toggle{display:none;background:none;border:none;color:var(--text);font-size:24px;cursor:pointer}
+.fm-chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:0 0 28px}
+.fm-chip{background:var(--card);border:1px solid var(--border);border-radius:100px;padding:8px 16px;font-size:13px;font-weight:600;color:var(--text);transition:all .3s}
+.fm-chip:hover{border-color:var(--green);color:var(--green)}
+.fm-cta{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
 @media(max-width:768px){
   .nav-links{display:none;position:absolute;top:60px;left:0;right:0;background:var(--bg);flex-direction:column;padding:20px;border-bottom:1px solid var(--border);gap:16px}
   .nav-links.open{display:flex}
@@ -136,7 +142,7 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 <nav><div class="wrap">
 <div class="logo"><span>◆</span> ModelHub</div>
 <button class="menu-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
-<div class="nav-links"><a href="#compare">Savings</a><a href="#pricing">Pricing</a><a href="#features">Features</a><a href="#how">How It Works</a><a href="#" class="btn-nav">Get Started →</a></div>
+<div class="nav-links"><a href="#compare">Savings</a><a href="#free-models">Free Models</a><a href="#pricing">Pricing</a><a href="#features">Features</a><a href="#gateway">Gateway</a><a href="#how">How It Works</a><a href="#" class="btn-nav">Get Started →</a></div>
 </div></nav>
 
 <section class="hero">
@@ -202,6 +208,19 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 </div>
 </section>
 
+<section class="section" id="gateway" style="background:#0c101a">
+<div class="wrap">
+<div class="r"><span class="section-label">⚡ Protocol Conversion Gateway · 协议转换网关</span></div>
+<h2 class="section-title r d2">The One Thing a Model Switcher Can't Do</h2>
+<p class="section-sub r d3">Claude Code speaks Anthropic. DeepSeek, Qwen and Kimi speak OpenAI. ModelHub translates between them on your machine — zero config, your keys never leave.<br><span style="color:var(--text-dim);font-size:14px">Claude Code 只认 Anthropic 协议；DeepSeek / 通义千问 / Kimi 只认 OpenAI 协议。ModelHub 在你的本机完成协议转换，零配置，Key 不出本机。</span></p>
+<div class="grid-3 r d4">
+<div class="feature-card"><div class="ico">🔄</div><h4>Local Protocol Translation</h4><p>Converts between the Anthropic and OpenAI protocols in both directions, preserving tool_use. Claude Code treats cheap OpenAI-format models as if native.</p><p style="font-size:12px;color:var(--text-dim);margin-top:8px">本地双向协议转换（含工具调用），让 Claude Code 把便宜的 OpenAI 格式模型当原生用。</p></div>
+<div class="feature-card"><div class="ico">🆓</div><h4>Switchers Aren't Gateways</h4><p>Free switchers only switch among models that already share a protocol. They don't convert OpenAI-format models to the Anthropic protocol Claude Code speaks. ModelHub does — locally, with your own key.</p><p style="font-size:12px;color:var(--text-dim);margin-top:8px">免费切换器只在同源协议模型间切换，不做协议转换；ModelHub 在本机完成 OpenAI→Anthropic 协议转换。</p></div>
+<div class="feature-card"><div class="ico">🔒</div><h4>BYOK, Zero Markup</h4><p>You bring your own key. It hits the provider directly — no 5% resale fee like aggregators. Your key, your bill, your data.</p><p style="font-size:12px;color:var(--text-dim);margin-top:8px">自带 Key，直连供应商，无中间商加价（聚合器普遍收 5%）。Key 与账单都在你手里。</p></div>
+</div>
+</div>
+</section>
+
 <section class="section" id="features">
 <div class="wrap">
 <div class="r"><span class="section-label">Features</span></div>
@@ -213,6 +232,21 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 <div class="feature-card"><div class="ico">⚡</div><h4>Runtime Switching</h4><p>Switch between 24 models without restarting Claude Code or Codex.</p></div>
 <div class="feature-card"><div class="ico">🛠️</div><h4>Full Tool Use</h4><p>File read/write, command execution — all tool calls work perfectly.</p></div>
 <div class="feature-card"><div class="ico">🌐</div><h4>Built-in Web UI</h4><p>Full management panel at localhost:4000. Manage keys, switch models, view logs.</p></div>
+</div>
+</div>
+</section>
+
+<section class="section" id="free-models" style="background:#0c101a">
+<div class="wrap">
+<div class="r"><span class="section-label">💸 Free Models</span></div>
+<h2 class="section-title r d2">Start at $0 — Use Free Model Credits</h2>
+<p class="section-sub r d3">Bring your own free API keys from top providers. No card, no trial expiry — just paste a key into ModelHub and start coding on Claude Code & Codex today.</p>
+<div class="fm-chips r d4">
+<span class="fm-chip">DeepSeek</span><span class="fm-chip">Zhipu GLM</span><span class="fm-chip">SiliconFlow</span><span class="fm-chip">Qwen</span><span class="fm-chip">Kimi</span><span class="fm-chip">Volcengine</span><span class="fm-chip">Baidu</span><span class="fm-chip">Tencent</span>
+</div>
+<div class="fm-cta r d5">
+<a href="/free-models.html" class="btn-primary">🎁 Get Free Models →</a>
+<a href="#pricing" class="btn-secondary">See Paid Plans ↓</a>
 </div>
 </div>
 </section>

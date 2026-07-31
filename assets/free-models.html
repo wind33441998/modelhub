@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Model Credits · Self-serve</title>
+<meta name="description" content="Get free model credits for Claude Code & Codex. Bring your own free API keys from DeepSeek, Zhipu GLM, SiliconFlow, Qwen, Kimi, Volcengine, Baidu, Tencent — no card, no trial expiry. ModelHub auto-converts the protocol.">
+<meta name="keywords" content="free ai models, free tokens, free api, free model credits, 获取免费模型, 免费模型, 免费token, 免费API, 免费额度, 中文免费token, 免费Claude Code, 免费Codex, 免费大模型, 智谱免费, 硅基流动免费, 通义千问免费, DeepSeek免费, 免费GLM, 免费Qwen, 免费Kimi, claude code free models, codex free models, byok, no vpn, 免VPN">
+<style>
+  :root{
+    --bg:#0f1115; --card:#1a1d24; --line:#2a2f3a; --text:#e6e8ec;
+    --muted:#9aa3b2; --accent:#4f8cff; --green:#3ecf8e; --amber:#f5b14c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.6;padding:24px}
+  .wrap{max-width:980px;margin:0 auto}
+  header{display:flex;align-items:center;justify-content:space-between;
+    flex-wrap:wrap;gap:12px;margin-bottom:8px}
+  h1{font-size:22px;font-weight:700}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:20px}
+  .back{display:inline-block;color:var(--accent);text-decoration:none;font-size:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;
+    display:flex;flex-direction:column;gap:8px}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .name{font-size:16px;font-weight:650}
+  .badge{font-size:11px;padding:2px 8px;border-radius:999px;white-space:nowrap}
+  .b-free{background:rgba(62,207,142,.15);color:var(--green)}
+  .b-gift{background:rgba(79,140,255,.15);color:var(--accent)}
+  .b-temp{background:rgba(245,177,76,.15);color:var(--amber)}
+  .quota{font-size:13px;color:var(--text)}
+  .desc{font-size:12.5px;color:var(--muted);min-height:34px}
+  .note{font-size:11.5px;color:var(--amber);background:rgba(245,177,76,.08);
+    border-radius:6px;padding:6px 8px}
+  .route{font-size:11.5px;color:var(--muted);background:rgba(79,140,255,.08);
+    border-radius:6px;padding:6px 8px}
+  .route code{color:var(--accent)}
+  .models{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+  .chip{font-size:11px;padding:2px 7px;border-radius:6px;background:rgba(154,163,178,.12);
+    color:var(--text);font-family:ui-monospace,Consolas,monospace}
+  .go{margin-top:auto;display:inline-block;text-align:center;background:var(--accent);
+    color:#fff;text-decoration:none;font-size:13px;font-weight:600;padding:8px;border-radius:8px}
+  .go:hover{opacity:.9}
+  .warn{margin-top:22px;background:rgba(245,177,76,.07);border:1px solid rgba(245,177,76,.25);
+    border-radius:10px;padding:14px 16px;font-size:12.5px;color:var(--muted)}
+  .warn b{color:var(--amber)}
+  footer{margin-top:24px;color:var(--muted);font-size:11.5px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back" href="/">← Back</a>
+      <h1 style="margin-top:6px">🎁 Free Model Credits · Self-serve</h1>
+    </div>
+  </header>
+  <p class="sub">The platforms below offer free models or free credits for new users. Click “Get API Key” to sign up and grab your key, then paste it into ModelHub to start using it. Quota policies change often — always check each platform's console for actual availability.</p>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="warn">
+    <b>After you get a key:</b> Open the ModelHub manager (<code>start.html</code>) → “Configure API Keys” card, and paste the key under the <b>ModelHub provider</b> labeled on each card; then in the “Models” list, pick that platform's <b>free model alias</b> (listed on the card).
+    <br><b>Protocol compatibility:</b> Claude Code users don't need to worry about protocols — the ModelHub gateway auto-converts the Anthropic protocol to these platforms' OpenAI protocol (including tool_use), works out of the box. Codex users can also bypass the gateway and point <code>base_url</code> to the platform's OpenAI-compatible endpoint directly in <code>~/.codex/config.toml</code> using <code>model_providers</code>.
+    <br><b>Quota exhausted / model retired:</b> If a platform's free quota runs out or a model is retired, manually switch to another free model or your paid key in the ModelHub model list (no auto-fallback in the current MVP stage). Free models generally have concurrency / RPM limits (e.g. Zhipu 30 concurrent, SiliconFlow 1000 RPM); for high-concurrency tasks use a paid tier or off-peak hours.
+  </div>
+
+  <footer>Quota policies change with vendor promotions. This page is an entry-point navigator only and does not guarantee real-time availability.</footer>
+</div>
+
+<script>
+// Single source of truth: platform info is centralized here; both the cards
+// and the "selectable model aliases" are rendered from it to avoid alias drift.
+// The `provider` field MUST match the provider name in ModelHub config.json;
+// `models` are the real aliases selectable in ModelHub.
+const PLATFORMS = [
+  {
+    name: "Zhipu GLM", provider: "zhipu", badge: "Free forever", badgeClass: "b-free",
+    quota: "GLM-4-Flash fully free (128K context)<br>Free tokens for new users",
+    desc: "Strong at coding & long-text; ideal zero-cost fallback model.",
+    note: "Some plans require real-name verification; quota subject to console.",
+    models: ["glm-4-flash", "glm-4-plus", "glm-4-air"],
+    url: "https://open.bigmodel.cn/"
+  },
+  {
+    name: "SiliconFlow", provider: "siliconflow", badge: "Free forever", badgeClass: "b-free",
+    quota: "Open-source models under 9B free forever<br>20M free tokens for new users (permanent)",
+    desc: "Low latency in China (<100ms), aggregates Qwen / DeepSeek / GLM, OpenAI-compatible.",
+    note: "Sign up with phone number, no card required; rate limit 1000 RPM / 50K TPM.",
+    models: ["sf-qwen-7b", "sf-qwen-72b", "sf-deepseek-v3", "sf-glm-4-9b"],
+    url: "https://cloud.siliconflow.cn/"
+  },
+  {
+    name: "Alibaba BaiLian", provider: "qwen", badge: "Sign-up bonus", badgeClass: "b-gift",
+    quota: "1M tokens × multiple models (~70M total), 90 days<br>qwen-turbo free forever",
+    desc: "Full Qwen lineup, enterprise-grade stability, widest model coverage.",
+    note: "Requires Alibaba Cloud account; per-model quota, valid 90 days.",
+    models: ["qwen-turbo", "qwen-max", "qwen-plus"],
+    url: "https://bailian.console.aliyun.com/"
+  },
+  {
+    name: "DeepSeek", provider: "deepseek", badge: "Limited-time", badgeClass: "b-temp",
+    quota: "5M free tokens for new accounts, valid 30 days",
+    desc: "Strong reasoning/coding; chat.deepseek.com is free & unlimited long-term.",
+    note: "Email + phone verification; expires in 30 days, use promptly.",
+    models: ["deepseek-chat", "deepseek-v4-flash"],
+    url: "https://platform.deepseek.com/"
+  },
+  {
+    name: "Kimi / Moonshot", provider: "moonshot", badge: "Sign-up bonus", badgeClass: "b-gift",
+    quota: "~8M free tokens for new users",
+    desc: "262K ultra-long context, ideal for long docs / contract review.",
+    note: "Short-term bonus, subject to console.",
+    models: ["kimi-chat"],
+    url: "https://platform.moonshot.cn/"
+  },
+  {
+    name: "Volcengine Doubao", provider: "doubao", badge: "Mixed", badgeClass: "b-temp",
+    quota: "500K one-time tokens for new users + 2M daily collaboration bonus (resets daily)",
+    desc: "Seed series low latency; Doubao Lite nearly free, latency as low as 20ms.",
+    note: "Daily quota from third-party aggregation, verify in console; real-name required.",
+    models: ["vb-doubao-lite", "vb-doubao-seed"],
+    url: "https://console.volcengine.com/"
+  },
+  {
+    name: "Baidu Qianfan", provider: "qianfan", badge: "Free forever", badgeClass: "b-free",
+    quota: "ERNIE-Speed / ERNIE-Lite / ERNIE-Tiny free continuously<br>1M free tokens per model",
+    desc: "ERNIE-Speed high concurrency, cost-effective for compliance scenarios.",
+    note: "Requires Baidu AI Cloud account; bonus valid 60–90 days.",
+    models: ["qf-ernie-speed", "qf-ernie-lite", "qf-ernie-tiny"],
+    url: "https://console.bce.baidu.com/qianfan/"
+  },
+  {
+    name: "Tencent Hunyuan", provider: "hunyuan", badge: "Free forever", badgeClass: "b-free",
+    quota: "Hunyuan-Lite fully free<br>10 flagship models share 1M tokens / year",
+    desc: "Smooth WeChat/mini-program integration, lightweight mobile-friendly.",
+    note: "Requires Tencent Cloud account; shared quota valid 1 year.",
+    models: ["ty-hunyuan-lite"],
+    url: "https://hunyuan.tencent.com/"
+  }
+];
+
+function render() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = PLATFORMS.map(p => `
+    <div class="card">
+      <div class="top"><span class="name">${p.name}</span><span class="badge ${p.badgeClass}">${p.badge}</span></div>
+      <div class="quota">${p.quota}</div>
+      <div class="desc">${p.desc}</div>
+      <div class="note">⚠ ${p.note}</div>
+      <div class="route">ModelHub provider: <code>${p.provider}</code></div>
+      <div class="models">${p.models.map(m => `<span class="chip">${m}</span>`).join('')}</div>
+      <a class="go" href="${p.url}" target="_blank" rel="noopener">Get API Key →</a>
+    </div>
+  `).join('');
+}
+render();
+</script>
+</body>
+</html>

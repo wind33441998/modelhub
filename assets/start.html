@@ -183,6 +183,13 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.75;background:#0b1220
     </div>
   </div>
 
+  <!-- 免费模型 CTA：跳转至免费模型额度申请说明页 -->
+  <div class="card r" style="animation-delay:.04s">
+    <div class="ct"><span>🎁</span><span data-i18n="free_models_title">免费模型流量</span></div>
+    <div class="design-note" data-i18n-html="free_models_note">不想付费？领取各平台免费模型额度，粘进 ModelHub 即可用。</div>
+    <div style="text-align:center;margin-top:14px"><a class="btn" id="freeModelsBtn" data-i18n="free_models_btn" href="/free-models.html">🎁 领取免费模型 →</a></div>
+  </div>
+
   <!-- 0. 环境自检 -->
   <div class="card r" style="animation-delay:.08s">
     <div class="ct"><span data-i18n="card_env">环境自检</span> <span id="envHint" class="badge intl" style="margin-left:auto;cursor:pointer" data-i18n="env_run">运行自检</span></div>
@@ -302,6 +309,9 @@ const I18N = {
   zh: {
     title_main:'ModelHub 多模型网关',
     title_sub:'Claude Code · Codex 统一网关 · 本地运行 · 密钥存本机',
+    free_models_title:'免费模型流量',
+    free_models_note:'不想付费？领取 <b>智谱 / 硅基 / 阿里 / DeepSeek / Kimi / 火山 / 百度 / 腾讯</b> 等平台的免费模型额度，粘进 ModelHub 即可用。Claude Code 由网关自动转换协议，Codex 直连 OpenAI 端点。',
+    free_models_btn:'🎁 领取免费模型 →',
     doc_title:'ModelHub 多模型网关 — 管理面板',
     card_env:'环境自检',
     env_run:'运行自检',
@@ -387,6 +397,9 @@ const I18N = {
   en: {
     title_main:'ModelHub Multi-Model Gateway',
     title_sub:'Claude Code · Codex unified gateway · Runs locally · Keys on this machine',
+    free_models_title:'Free Model Credits',
+    free_models_note:'No paid plan? Grab free model credits from <b>Zhipu / SiliconFlow / Alibaba / DeepSeek / Kimi / Volcengine / Baidu / Tencent</b> and paste them into ModelHub. The gateway auto-converts the protocol for Claude Code; Codex connects to OpenAI endpoints directly.',
+    free_models_btn:'🎁 Get Free Models →',
     doc_title:'ModelHub Multi-Model Gateway — Admin Panel',
     card_env:'Environment Check',
     env_run:'Run self-test',
@@ -720,6 +733,9 @@ function bindStatic(){
   document.getElementById('ccRestore').addEventListener('click',e=>{e.preventDefault();restoreConfig('cc');});
   document.getElementById('cxRestore').addEventListener('click',e=>{e.preventDefault();restoreConfig('cx');});
   document.getElementById('envHint').addEventListener('click',runSelfTest);
+  // 免费模型按钮：BASE 在代理下为 ''（相对路径），file:// 下为 http://127.0.0.1:4000，均指向网关托管的 /free-models.html
+  const fmb=document.getElementById('freeModelsBtn');
+  if(fmb){ fmb.href = (BASE||'') + '/free-models.html'; }
   document.getElementById('logMore').addEventListener('click',()=>{ logVisible=Math.min(logVisible+50,LOGS.length); renderLog(); });
   document.getElementById('themeBtn').addEventListener('click',()=>{
     const cur=document.documentElement.getAttribute('data-theme');
