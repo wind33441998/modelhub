@@ -54,7 +54,7 @@ nav .wrap{display:flex;align-items:center;justify-content:space-between}
 .hero-stat{text-align:center}
 .hero-stat .num{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--green)}
 .hero-stat .lbl{font-size:12px;color:var(--text-dim);margin-top:4px}
-.section{padding:80px 0}
+.section{padding:80px 0;scroll-margin-top:90px}
 .section-label{font-family:var(--mono);font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:2px;font-weight:500;margin-bottom:8px}
 .section-title{font-family:var(--disp);font-size:clamp(28px,3.5vw,40px);font-weight:800;letter-spacing:-.5px;margin-bottom:16px}
 .section-sub{color:var(--text-dim);font-size:16px;max-width:600px;margin-bottom:40px}
@@ -97,12 +97,14 @@ nav .wrap{display:flex;align-items:center;justify-content:space-between}
 @media(max-width:900px){.pricing-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:500px){.pricing-grid{grid-template-columns:1fr}}
 .pricing-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;transition:all .3s;position:relative}
-.pricing-card:hover{transform:translateY(-4px)}
+.pricing-card:hover{transform:translateY(-4px);box-shadow:0 0 32px rgba(16,185,129,.14);border-color:var(--green)}
 .pricing-card.featured{border-color:var(--green);box-shadow:0 0 32px var(--green-glow)}
 .pricing-card.featured::before{content:"Best Value";position:absolute;top:-12px;left:50%;translate:-50% 0;background:var(--green);color:#000;font-size:11px;font-weight:700;padding:4px 14px;border-radius:100px}
 .pricing-card .tier{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:4px}
 .pricing-card .price{font-family:var(--disp);font-size:36px;font-weight:800;margin-bottom:4px}
 .pricing-card .price-sub{font-size:12px;color:var(--text-dim);margin-bottom:16px}
+.pricing-card .price .orig{font-size:16px;font-weight:500;color:var(--text-dim);text-decoration:line-through;margin-left:8px}
+.pricing-card .save{display:inline-block;margin-top:2px;background:rgba(16,185,129,.14);color:var(--green);font-family:var(--mono);font-size:12px;font-weight:700;padding:4px 12px;border-radius:6px}
 .pricing-card ul{list-style:none;padding:0;flex:1}
 .pricing-card li{padding:8px 0;font-size:13px;border-bottom:1px solid var(--border);display:flex;gap:8px}
 .pricing-card li:last-child{border-bottom:none}
@@ -142,7 +144,7 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 <nav><div class="wrap">
 <div class="logo"><span>◆</span> ModelHub</div>
 <button class="menu-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
-<div class="nav-links"><a href="#compare">Savings</a><a href="#free-models">Free Models</a><a href="#pricing">Pricing</a><a href="#features">Features</a><a href="#gateway">Gateway</a><a href="#how">How It Works</a><a href="#" class="btn-nav">Get Started →</a></div>
+<div class="nav-links"><a href="#pricing">Pricing</a><a href="#free-models">Free Models</a><a href="#compare">Savings</a><a href="#features">Features</a><a href="#gateway">Gateway</a><a href="#how">How It Works</a><a href="#" class="btn-nav">Get Started →</a></div>
 </div></nav>
 
 <section class="hero">
@@ -160,7 +162,50 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 </div>
 </section>
 
-<section class="section" id="compare">
+<section class="section" id="pricing" style="background:#0c101a">
+<div class="wrap">
+<div class="r"><span class="section-label">Pricing</span></div>
+<h2 class="section-title r d2">Simple Pricing. One License, All Features.</h2>
+<p class="section-sub r d3">No hidden fees. No token markups. No subscriptions required.</p>
+<div class="pricing-grid r d4">
+<div class="pricing-card"><div class="tier">Trial</div><div class="price">$0</div><div class="price-sub">7 days free</div>
+<ul><li><span class="ck">✓</span> 1 provider (DeepSeek)</li><li><span class="ck">✓</span> 4 models</li><li><span class="no">✗</span> 1 device</li><li><span class="ck">✓</span> Full management UI</li></ul>
+<a href="/checkout.html?tier=trial" class="btn-pricing sec">Free Trial →</a><div class="trial-badge">No credit card needed</div></div>
+
+<div class="pricing-card"><div class="tier">Monthly</div><div class="price">$3 <span class="orig">$9</span></div><div class="price-sub">per month</div>
+<div class="save">Save 67%</div>
+<ul><li><span class="ck">✓</span> All 8 providers</li><li><span class="ck">✓</span> All 24 models</li><li><span class="ck">✓</span> Up to 3 devices</li><li><span class="ck">✓</span> Email support</li></ul>
+<a href="/checkout.html?tier=monthly" class="btn-pricing sec">Subscribe $3 →</a></div>
+
+<div class="pricing-card featured"><div class="tier">Yearly</div><div class="price">$29 <span class="orig">$99</span></div><div class="price-sub">per year</div>
+<div class="save">Save 70%</div>
+<ul><li><span class="ck">✓</span> All 8 providers</li><li><span class="ck">✓</span> All 24 models</li><li><span class="ck">✓</span> Up to 5 devices</li><li><span class="ck">✓</span> Unlimited logs</li></ul>
+<a href="/checkout.html?tier=yearly" class="btn-pricing primary">Buy $29 →</a><div class="trial-badge">Less than 2 hours of Claude API cost</div></div>
+
+<div class="pricing-card"><div class="tier">Lifetime</div><div class="price">$69 <span class="orig">$499</span></div><div class="price-sub">one-time</div>
+<div class="save">Save 86%</div>
+<ul><li><span class="ck">✓</span> All 8 providers</li><li><span class="ck">✓</span> All 24 models</li><li><span class="ck">✓</span> Up to 10 devices</li><li><span class="ck">✓</span> Forever updates</li></ul>
+<a href="/checkout.html?tier=lifetime" class="btn-pricing sec">Buy $69 →</a></div>
+</div>
+</div>
+</section>
+
+<section class="section" id="free-models">
+<div class="wrap">
+<div class="r"><span class="section-label">💸 Free Models</span></div>
+<h2 class="section-title r d2">Start at $0 — Use Free Model Credits</h2>
+<p class="section-sub r d3">Bring your own free API keys from top providers. No card, no trial expiry — just paste a key into ModelHub and start coding on Claude Code & Codex today.</p>
+<div class="fm-chips r d4">
+<span class="fm-chip">DeepSeek</span><span class="fm-chip">Zhipu GLM</span><span class="fm-chip">SiliconFlow</span><span class="fm-chip">Qwen</span><span class="fm-chip">Kimi</span><span class="fm-chip">Volcengine</span><span class="fm-chip">Baidu</span><span class="fm-chip">Tencent</span>
+</div>
+<div class="fm-cta r d5">
+<a href="/free-models.html" class="btn-primary">🎁 Get Free Models →</a>
+<a href="#pricing" class="btn-secondary">↑ See Paid Plans</a>
+</div>
+</div>
+</section>
+
+<section class="section" id="compare" style="background:#0c101a">
 <div class="wrap">
 <div class="r"><span class="section-label">💰 Cost Comparison</span></div>
 <h2 class="section-title r d2">How Much Can You Save with ModelHub?</h2>
@@ -192,7 +237,7 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 </div>
 </section>
 
-<section class="section" style="background:#0c101a">
+<section class="section">
 <div class="wrap">
 <div class="r"><span class="section-label">Why Developers Switch</span></div>
 <h2 class="section-title r d2">Why Claude Code & Codex Users Choose ModelHub</h2>
@@ -236,47 +281,7 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 </div>
 </section>
 
-<section class="section" id="free-models" style="background:#0c101a">
-<div class="wrap">
-<div class="r"><span class="section-label">💸 Free Models</span></div>
-<h2 class="section-title r d2">Start at $0 — Use Free Model Credits</h2>
-<p class="section-sub r d3">Bring your own free API keys from top providers. No card, no trial expiry — just paste a key into ModelHub and start coding on Claude Code & Codex today.</p>
-<div class="fm-chips r d4">
-<span class="fm-chip">DeepSeek</span><span class="fm-chip">Zhipu GLM</span><span class="fm-chip">SiliconFlow</span><span class="fm-chip">Qwen</span><span class="fm-chip">Kimi</span><span class="fm-chip">Volcengine</span><span class="fm-chip">Baidu</span><span class="fm-chip">Tencent</span>
-</div>
-<div class="fm-cta r d5">
-<a href="/free-models.html" class="btn-primary">🎁 Get Free Models →</a>
-<a href="#pricing" class="btn-secondary">See Paid Plans ↓</a>
-</div>
-</div>
-</section>
-
-<section class="section" id="pricing" style="background:#0c101a">
-<div class="wrap">
-<div class="r"><span class="section-label">Pricing</span></div>
-<h2 class="section-title r d2">Simple Pricing. One License, All Features.</h2>
-<p class="section-sub r d3">No hidden fees. No token markups. No subscriptions required.</p>
-<div class="pricing-grid r d4">
-<div class="pricing-card"><div class="tier">Trial</div><div class="price">$0</div><div class="price-sub">7 days free</div>
-<ul><li><span class="ck">✓</span> 1 provider (DeepSeek)</li><li><span class="ck">✓</span> 4 models</li><li><span class="no">✗</span> 1 device</li><li><span class="ck">✓</span> Full management UI</li></ul>
-<a href="/checkout.html?tier=trial" class="btn-pricing sec">Free Trial →</a><div class="trial-badge">No credit card needed</div></div>
-
-<div class="pricing-card"><div class="tier">Monthly</div><div class="price">$3</div><div class="price-sub">per month</div>
-<ul><li><span class="ck">✓</span> All 8 providers</li><li><span class="ck">✓</span> All 24 models</li><li><span class="ck">✓</span> Up to 3 devices</li><li><span class="ck">✓</span> Email support</li></ul>
-<a href="/checkout.html?tier=monthly" class="btn-pricing sec">Subscribe $3 →</a></div>
-
-<div class="pricing-card featured"><div class="tier">Yearly</div><div class="price">$29</div><div class="price-sub">per year <span style="color:#10b981;font-size:11px">(Save 70%)</span></div>
-<ul><li><span class="ck">✓</span> All 8 providers</li><li><span class="ck">✓</span> All 24 models</li><li><span class="ck">✓</span> Up to 5 devices</li><li><span class="ck">✓</span> Unlimited logs</li></ul>
-<a href="/checkout.html?tier=yearly" class="btn-pricing primary">Buy $29 →</a><div class="trial-badge">Less than 2 hours of Claude API cost</div></div>
-
-<div class="pricing-card"><div class="tier">Lifetime</div><div class="price">$69</div><div class="price-sub">one-time</div>
-<ul><li><span class="ck">✓</span> All 8 providers</li><li><span class="ck">✓</span> All 24 models</li><li><span class="ck">✓</span> Up to 10 devices</li><li><span class="ck">✓</span> Forever updates</li></ul>
-<a href="/checkout.html?tier=lifetime" class="btn-pricing sec">Buy $69 →</a></div>
-</div>
-</div>
-</section>
-
-<section class="section" id="how">
+<section class="section" id="how" style="background:#0c101a">
 <div class="wrap">
 <div class="r"><span class="section-label">Getting Started</span></div>
 <h2 class="section-title r d2">From Zero to Saving in 2 Minutes</h2>
@@ -288,7 +293,7 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 </div>
 </section>
 
-<section class="section" style="background:#0c101a">
+<section class="section">
 <div class="wrap">
 <div class="referral r"><h3>Love ModelHub? Share It. Earn Free Months.</h3>
 <p>Refer a friend. When they buy, you get free time. No limit — stack up.</p>
@@ -313,7 +318,7 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 </div>
 </section>
 
-<section class="section">
+<section class="section" style="background:#0c101a">
 <div class="wrap">
 <div class="r"><span class="section-label">FAQ</span></div>
 <h2 class="section-title r d2">Common Questions</h2>
