@@ -22,3 +22,6 @@ tmp/
 server/data/
 .vercel
 .env*
+
+# 本地 Claude Code 配置（settings/analysis，不进公开仓库）
+.claude/
