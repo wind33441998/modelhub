@@ -141,6 +141,7 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 </style>
 </head>
 <body>
+<div id="refNotice" style="display:none;background:rgba(16,185,129,.12);border-bottom:1px solid rgba(16,185,129,.3);color:var(--green);text-align:center;padding:10px 16px;font-size:13px;font-weight:600"></div>
 <nav><div class="wrap">
 <div class="logo"><span>◆</span> ModelHub</div>
 <button class="menu-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
@@ -340,7 +341,15 @@ footer p,footer a{font-size:13px;color:var(--text-dim);text-decoration:none}
 (function(){
   var params = new URLSearchParams(location.search);
   var incoming = params.get('ref');
-  if(incoming) localStorage.setItem('mh_ref', incoming);
+  if(!incoming){
+    var pm = location.pathname.match(/^\/ref\/([A-Za-z0-9_-]+)/);
+    if(pm) incoming = pm[1];
+  }
+  if(incoming){
+    localStorage.setItem('mh_ref', incoming);
+    var notice = document.getElementById('refNotice');
+    if(notice){ notice.style.display = 'block'; notice.textContent = '🎁 You were referred by a friend — finish your purchase to give them free time!'; }
+  }
   var myCode = localStorage.getItem('mh_mycode');
   var myRef = localStorage.getItem('mh_ref');
   if(myRef){

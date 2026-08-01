@@ -190,6 +190,7 @@ td{padding:10px 12px;border-bottom:1px solid var(--border)}
 
 <script>
 const LS = "http://127.0.0.1:3001";
+const LSAPI = "https://webhook.claude-proxys.com";
 let currentLicense = null;
 
 function toast(msg, type) {
@@ -207,6 +208,20 @@ async function api(url, opts) {
   } catch (e) {
     return { error: e.message };
   }
+}
+
+// Resolve the real referral code for the current user and fill the share link.
+// The code lives on the License Server (REFxxxx), NOT the email prefix.
+async function fetchReferralCode(email) {
+  const fallback = "claude-proxys.com/ref/" + (email ? email.split("@")[0].toUpperCase() : "USER") + "?discount=REF_YEARLY_10OFF";
+  if (!email) { document.getElementById("refLink").value = fallback; return; }
+  const r = await api(LSAPI + "/api/referral/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  const code = r.code || (email ? email.split("@")[0].toUpperCase() : "USER");
+  document.getElementById("refLink").value = "claude-proxys.com/ref/" + code + "?discount=REF_YEARLY_10OFF";
 }
 
 // Check license server connectivity
@@ -244,8 +259,8 @@ async function loadLicense() {
     // For now, show a masked version
     document.getElementById("licStatus").innerHTML = '<span class="badge badge-green"><span class="dot dot-green"></span> Licensed</span>';
     
-    // Generate referral link
-    document.getElementById("refLink").value = "claude-proxys.com/ref/" + (r.email ? r.email.split("@")[0].toUpperCase() : "USER") + "?discount=REF_YEARLY_10OFF";
+    // Generate referral link with the REAL code (not email prefix) so /ref/<code> resolves on apply
+    fetchReferralCode(r.email);
     
     // Log the activity
     addLog("License verified", "ok");

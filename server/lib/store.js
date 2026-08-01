@@ -48,6 +48,9 @@ function saveReferrals(d) { writeStore("referrals", d); }
 
 function generateReferralCode(owner_email) {
   const list = getReferrals();
+  // Idempotent: same owner_email always maps to the same code (so dashboard links stay stable)
+  const existing = list.find((r) => r.owner_email && r.owner_email.toLowerCase() === String(owner_email).toLowerCase());
+  if (existing) return existing.code;
   const code = "REF" + Math.random().toString(36).slice(2, 8).toUpperCase();
   list.push({ code, owner_email, created_at: Date.now(), uses: 0, reward_days_given: 0, rewarded_referees: [], max_uses: MAX_REFERRAL_USES });
   saveReferrals(list); return code;
