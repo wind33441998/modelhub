@@ -122,11 +122,18 @@ const store = {
 
 // ─── Crypto ───
 const crypto = require("crypto");
-const HMAC_KEY = process.env.MODELHUB_HMAC_KEY || "dev-hmac-key-must-change-in-prod";
+// 与 server/lib/crypto.js 保持同一默认值/同一 env 来源，保证两端签发的 integrity 可互验
+const HMAC_KEY = process.env.MODELHUB_HMAC_KEY || "dev-hmac-key-change-in-prod";
 
 function genLicenseKey() {
   const raw = crypto.randomBytes(8).toString("hex").toUpperCase();
   return "MHUB-" + raw.match(/.{1,4}/g).join("-");
+}
+
+// 与 server/lib/crypto.js 的 signLicense 算法一致：payload = key|email|tier|issuedAt
+function signLicense(license_key, email, tier, issuedAt) {
+  const payload = [license_key, email, tier, issuedAt].join("|");
+  return crypto.createHmac("sha256", HMAC_KEY).update(payload).digest("hex");
 }
 
 const TIERS = { trial: { days: 7, devices: 1 }, monthly: { days: 30, devices: 3 }, yearly: { days: 365, devices: 5 }, lifetime: { days: 36500, devices: 10 } };
@@ -152,6 +159,11 @@ async function handleVerify(body) {
   if (!body.license_key) return { status: 400, data: { valid: false, error: "license_key required" } };
   const dbLic = await store.findLicense(body.license_key);
   if (!dbLic || dbLic.active === false) return { status: 200, data: { valid: false, error: "License not found or deactivated" } };
+  // 完整性校验（防本地 JSON / Supabase 记录被直接篡改）。历史数据无 integrity 字段 → 跳过（向后兼容）。
+  if (dbLic.integrity) {
+    const ok = signLicense(dbLic.license_key, dbLic.email, dbLic.tier, dbLic.issued_at) === dbLic.integrity;
+    if (!ok) return { status: 200, data: { valid: false, error: "License integrity check failed" } };
+  }
   const expiresAt = getExpiry(dbLic);
   if (Date.now() >= expiresAt) return { status: 200, data: { valid: false, error: "License expired" } };
   const t = TIERS[dbLic.tier];
@@ -183,7 +195,8 @@ module.exports = async (req, res) => {
       const body = JSON.parse(req.body || "{}");
       if (!body.email || !TIERS[body.tier]) return json(res, 400, { ok: false, error: "email and valid tier required" });
       const lk = genLicenseKey();
-      await store.addLicense({ license_key: lk, email: body.email, tier: body.tier, issued_at: Date.now(), referral_extra_days: 0, active: true });
+      const issuedAt = Date.now();
+      await store.addLicense({ license_key: lk, email: body.email, tier: body.tier, issued_at: issuedAt, integrity: signLicense(lk, body.email, body.tier, issuedAt), referral_extra_days: 0, active: true });
       return json(res, 200, { ok: true, license_key: lk });
     }
     json(res, 404, { error: "Not found" });

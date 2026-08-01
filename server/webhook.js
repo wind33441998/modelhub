@@ -4,9 +4,11 @@
 // 同时被 server/server.js 挂载（路由 /api/webhook/gumroad）以及可被 `node server/webhook.js`
 // 直接以独立测试服务运行（:3002）。业务逻辑只有这一份，避免与 server.js 内联副本漂移。
 //
-// 安全：校验 Gumroad 签名 (X-Gumroad-Signature = HMAC-SHA256 over RAW body)。
-//   - dev 模式（GUMROAD_SECRET 未设或为默认值）：不强制验签，仅告警（便于本地联调）。
-//   - 生产模式（配置了真实密钥）：缺签名头或签名不匹配 → 一律 401 拒绝（不再"跳过"）。
+// 安全：Gumroad 的 Ping 不发送签名头（X-Gumroad-Signature 不存在），官方也不提供 webhook 签名密钥。
+// 可靠的验证方式 = 把「共享密钥」作为 ?token= 参数拼在回调 URL 里（仅你与 Gumroad 知晓此 URL）。
+//   - dev 模式（GUMROAD_SECRET 未设或为默认值）：不强制校验，仅告警（便于本地联调）。
+//   - 生产模式（配置了真实密钥）：URL 的 token 参数须等于 GUMROAD_SECRET，否则 401 拒绝。
+//   - 冗余防御：若请求恰好带 X-Gumroad-Signature 头，也做一次 HMAC 校验（Gumroad 实际不发）。
 
 const crypto = require("crypto");
 const GUMROAD_SECRET = process.env.GUMROAD_SECRET || "dev-gumroad-secret";
@@ -16,12 +18,46 @@ const store = require("./lib/store");
 const { signLicense, generateLicense } = require("./lib/crypto");
 
 // Gumroad product_permalink → 内部 tier 映射
+// 仅用于「独立商品对应单一套餐」的情形（推荐新建商品时采用 modelhub-* 规范命名）。
+// 注：早期在 Gumroad 后台建的商品 permalink 为 `swpiot`，它是「单商品 + 多 versions
+// （月/年/终身）」结构，所有购买的 product_permalink 都相同，无法用本表映射，故不在此列出，
+// 其套餐识别完全交给 detectTier()（按价格/版本名）。
 const PERMALINK_MAP = {
   "modelhub-trial": "trial",
   "modelhub-monthly": "monthly",
   "modelhub-yearly": "yearly",
   "modelhub-lifetime": "lifetime",
 };
+// 注：`swpiot` 是「单商品 + 多 versions（月/年/终身）」结构，所有购买的 product_permalink
+// 都相同（恒为 /swpiot），必须靠价格/版本名区分套餐，故不放进 PERMALINK_MAP（否则会被
+// 误判为单一终身档）。其套餐识别完全交给下方 detectTier() 处理。
+
+// 套餐识别：Gumroad 对「单商品 + 多 versions」结构，所有购买的 product_permalink 都相同
+// （如本例永远为 /swpiot），必须靠 价格 / 版本名 区分月付/年付/终身，否则会全部错发终身码。
+// 识别优先级：①permalink 精确匹配（拆分独立商品时）②版本名关键词 ③价格(分) ④兜底。
+function detectTier(body, tierKey) {
+  if (PERMALINK_MAP[tierKey]) return PERMALINK_MAP[tierKey];
+
+  const text = [
+    body.product_name, body.resource_name, body.variant,
+    body.variants_text, JSON.stringify(body.variants || ""),
+  ].filter(Boolean).join(" ").toLowerCase();
+  if (/lifetime|终身|永久/.test(text)) return "lifetime";
+  if (/yearly|年付|年租/.test(text)) return "yearly";
+  if (/monthly|月付|月租/.test(text)) return "monthly";
+
+  const price = Number(body.price);
+  if (price) {
+    const usd = price >= 100 ? price / 100 : price; // 兼容「分」与「元」
+    if (Math.abs(usd - 69) < 1) return "lifetime";
+    if (Math.abs(usd - 29) < 1) return "yearly";
+    if (Math.abs(usd - 3) < 1) return "monthly";
+  }
+
+  // 兜底：已知版本化商品(swpiot)默认终身（其主推档即终身）；
+  // 其它未知 permalink 默认月付（低权限，避免把未知付费单错发终身造成资损）。
+  return tierKey === "swpiot" ? "lifetime" : "monthly";
+}
 
 // 读取原始请求体（用于验签）。同时兼容被 server.js 引入与独立运行两种场景。
 function readRawBody(req) {
@@ -67,18 +103,29 @@ async function handleGumroadWebhook(req, res) {
 
   const raw = await readRawBody(req);
   const body = parseBody(raw, req.headers);
+  const url = new URL(req.url, "http://localhost");
+  const token = url.searchParams.get("token");
   const sig = req.headers["x-gumroad-signature"] || req.headers["X-Gumroad-Signature"];
 
-  const sigOk = verifyGumroad(raw, sig, GUMROAD_SECRET);
-  if (sigOk === false) return sendJson(res, 401, { ok: false, error: "Invalid signature" });
-  if (sigOk === null) {
-    console.warn("[Webhook] dev mode: Gumroad signature verification skipped (set GUMROAD_SECRET in production)");
+  // 鉴权：生产模式要求 URL token 匹配，或（冗余）签名有效；否则拒绝。
+  const isDev = !GUMROAD_SECRET || GUMROAD_SECRET === "dev-gumroad-secret";
+  if (!isDev) {
+    const tokenOk = !!token && token === GUMROAD_SECRET;
+    const sigOk = verifyGumroad(raw, sig, GUMROAD_SECRET);
+    if (!tokenOk && sigOk !== true) {
+      console.warn("[Webhook] rejected: token mismatch and no valid signature");
+      return sendJson(res, 401, { ok: false, error: "Unauthorized" });
+    }
+  } else {
+    console.warn("[Webhook] dev mode: token/signature verification skipped (set GUMROAD_SECRET in production)");
   }
 
   const email = typeof body.email === "string" ? body.email.trim() : "";
   const permalink = body.product_permalink || body.permalink || "";
   const tierKey = String(permalink).split("/").filter(Boolean).pop() || "";
-  const tier = PERMALINK_MAP[tierKey] || "monthly";
+  const tier = detectTier(body, tierKey);
+  // 调试：打印关键字段，便于首笔真实订单后校准映射（确认无误后可删）。
+  console.log("[Webhook] detectTier:", JSON.stringify({ tierKey, price: body.price, product_name: body.product_name, variant: body.variant, tier }));
 
   if (!email) return sendJson(res, 400, { ok: false, error: "Missing email in webhook payload" });
 
@@ -104,13 +151,17 @@ async function handleGumroadWebhook(req, res) {
   });
 
   // 仅在真实付款后发推荐奖励（防刷逻辑在 store.awardReferral 内）
+  let referralAwarded = false;
   if (refCode) {
     const award = store.awardReferral(refCode, email, tier);
-    if (award && award.awarded) console.log("[referral] awarded", award.reward_days, "days to", award.owner_email, "via", refCode);
+    if (award && award.awarded) {
+      console.log("[referral] awarded", award.reward_days, "days to", award.owner_email, "via", refCode);
+      referralAwarded = true;
+    }
     store.removePendingReferral(email);
   }
 
-  return sendJson(res, 200, { ok: true, license_key, tier, referral_awarded: !!refCode });
+  return sendJson(res, 200, { ok: true, license_key, tier, referral_awarded: referralAwarded });
 }
 
 module.exports = { handleGumroadWebhook, verifyGumroad };

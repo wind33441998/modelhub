@@ -1,7 +1,3 @@
 name = "modelhub"
 compatibility_date = "2026-07-29"
-
-[env.production]
-routes = [
-  { pattern = "claude-proxys.com", custom_domain = true }
-]
+pages_build_output_dir = "."

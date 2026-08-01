@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ModelHub — Welcome</title>
+<style>
+  :root { --bg:#0b0e14; --card:#141925; --border:#262d3d; --fg:#e6e9ef; --muted:#8b93a7; --accent:#6c8cff; --accent2:#3ad29f; --danger:#ff6b6b; --warn:#ffb454; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--fg); display:flex; min-height:100vh; align-items:center; justify-content:center; padding:24px; }
+  .wrap { width:100%; max-width:560px; position:relative; }
+  .brand { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+  .logo { width:42px; height:42px; border-radius:11px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; color:#0b0e14; }
+  h1 { font-size:24px; margin:0; letter-spacing:.5px; }
+  .tag { color:var(--muted); font-size:13px; margin:2px 0 22px 54px; }
+  .lang { position:absolute; top:0; right:0; display:flex; gap:6px; }
+  .lang button { background:transparent; border:1px solid var(--border); color:var(--muted); padding:5px 10px; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; }
+  .lang button.active { background:rgba(108,140,255,.15); color:var(--accent); border-color:var(--accent); }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px; }
+  .lead { color:var(--muted); font-size:14px; line-height:1.7; margin:0 0 20px; }
+  .lead b { color:var(--fg); }
+  .status { font-size:13px; margin-bottom:14px; padding:10px 12px; border-radius:10px; display:none; }
+  .status.ok { display:block; background:rgba(58,210,159,.12); color:var(--accent2); border:1px solid rgba(58,210,159,.3); }
+  .status.err { display:block; background:rgba(255,107,107,.1); color:var(--danger); border:1px solid rgba(255,107,107,.3); }
+  .field { display:flex; gap:10px; }
+  input { flex:1; background:#0d1119; border:1px solid var(--border); color:var(--fg); padding:12px 14px; border-radius:10px; font-size:14px; outline:none; }
+  input:focus { border-color:var(--accent); }
+  button { background:var(--accent); color:#0b0e14; border:none; padding:12px 18px; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer; white-space:nowrap; }
+  button:hover { filter:brightness(1.08); }
+  button.ghost { background:transparent; color:var(--fg); border:1px solid var(--border); font-weight:600; }
+  .hint { color:var(--muted); font-size:12px; margin-top:10px; line-height:1.6; }
+  .links { margin-top:20px; display:flex; gap:10px; flex-wrap:wrap; }
+  .links a { color:var(--accent); text-decoration:none; font-size:13px; border:1px solid var(--border); padding:8px 12px; border-radius:9px; }
+  .links a:hover { background:#0d1119; }
+  .trial { margin-top:18px; font-size:12px; color:var(--warn); background:rgba(255,180,84,.08); border:1px solid rgba(255,180,84,.25); padding:10px 12px; border-radius:10px; line-height:1.6; }
+  .footer { color:var(--muted); font-size:11px; text-align:center; margin-top:18px; }
+  code { background:#0d1119; padding:1px 6px; border-radius:5px; color:var(--accent2); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="lang">
+      <button id="btn-en" class="active" onclick="setLang('en')">EN</button>
+      <button id="btn-zh" onclick="setLang('zh')">中</button>
+    </div>
+    <div class="brand">
+      <div class="logo">M</div>
+      <h1>ModelHub</h1>
+    </div>
+    <div class="tag" data-i18n="tag">Local multi-model gateway · Use your own API keys</div>
+
+    <div class="card">
+      <p class="lead" data-i18n="lead">
+        ModelHub is a <b>local gateway running on your computer</b>. Plug it into Claude Code / Codex,
+        then use your own API keys to call cost-efficient Chinese models like DeepSeek, Zhipu, Qwen, and SiliconFlow —
+        no VPN required.
+      </p>
+
+      <div id="status" class="status"></div>
+
+      <div id="activateBox">
+        <div class="field">
+          <input id="key" type="text" data-i18n-placeholder="keyPlaceholder" placeholder="Paste your license key, e.g. MHUB-XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" />
+          <button id="activateBtn" onclick="activate()" data-i18n="activate">Activate</button>
+        </div>
+        <div class="hint" data-i18n="hint">No license yet? After purchasing on Gumroad, a key is generated automatically; you can also retrieve it by email below.</div>
+      </div>
+
+      <div id="okBox" style="display:none">
+        <div class="field">
+          <button onclick="location.href='/start'" data-i18n="openDashboard">Open Dashboard →</button>
+          <button class="ghost" onclick="location.href='/free-models.html'" data-i18n="freeModels">Free Models</button>
+        </div>
+      </div>
+
+      <div class="links">
+        <a href="https://gumroad.com/l/swpiot" target="_blank" rel="noopener" data-i18n="buyLicense">Purchase License (Gumroad)</a>
+        <a href="https://webhook.claude-proxys.com/retrieve.html" target="_blank" rel="noopener" data-i18n="retrieveLicense">Retrieve License by Email</a>
+        <a href="/start" data-i18n="freeTrial">Free Trial 7 days</a>
+      </div>
+
+      <div class="trial" data-i18n="trial">💡 No key? Start with a <b>7-day free trial</b> (DeepSeek only). Activating unlocks all providers.</div>
+    </div>
+
+    <div class="footer" data-i18n="footer">ModelHub local proxy is running · This page is only open in your local browser</div>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const i18n = {
+    en: {
+      tag: "Local multi-model gateway · Use your own API keys",
+      lead: "ModelHub is a <b>local gateway running on your computer</b>. Plug it into Claude Code / Codex, then use your own API keys to call cost-efficient Chinese models like DeepSeek, Zhipu, Qwen, and SiliconFlow — no VPN required.",
+      keyPlaceholder: "Paste your license key, e.g. MHUB-XXXX-XXXX-XXXX-XXXX",
+      activate: "Activate",
+      hint: "No license yet? After purchasing on Gumroad, a key is generated automatically; you can also retrieve it by email below.",
+      openDashboard: "Open Dashboard →",
+      freeModels: "Free Models",
+      buyLicense: "Purchase License (Gumroad)",
+      retrieveLicense: "Retrieve License by Email",
+      freeTrial: "Free Trial 7 days",
+      trial: "💡 No key? Start with a <b>7-day free trial</b> (DeepSeek only). Activating unlocks all providers.",
+      footer: "ModelHub local proxy is running · This page is only open in your local browser",
+      statusErrConnect: "Cannot connect to the local service. Please make sure ModelHub is running.",
+      statusErrEmptyKey: "Please paste your license key first.",
+      statusActivating: "Verifying…",
+      statusErrActivate: "Activation failed: ",
+      statusErrNetwork: "Network error: ",
+      statusActivated: (tier,days)=>"✅ Activated: "+tier+(days?" ("+days+" remaining)":"")+". Click to open the dashboard.",
+      days: "days"
+    },
+    zh: {
+      tag: "本地多模型网关 · 用你的 Key 接入国产大模型",
+      lead: "ModelHub 是一个<b>跑在你电脑上的本地网关</b>。把它接到 Claude Code / Codex 的配置里，就能用你自己申请的 API Key，低成本调用 DeepSeek、智谱、通义、硅基等国产模型——不用开 VPN，不用翻墙。",
+      keyPlaceholder: "粘贴你的许可证 Key，例如 MHUB-XXXX-XXXX-XXXX-XXXX",
+      activate: "激活",
+      hint: "还没有许可证？在 Gumroad 完成购买后，系统会自动生成 Key；也可在下方「找回许可证」里用邮箱取回。",
+      openDashboard: "进入控制台 →",
+      freeModels: "免费模型",
+      buyLicense: "购买许可证（Gumroad）",
+      retrieveLicense: "用邮箱找回许可证",
+      freeTrial: "免费试用 7 天",
+      trial: "💡 没有 Key 也能先试用：未激活状态下自动进入 <b>7 天试用</b>（仅 DeepSeek 模型）。激活后即解锁全部供应商。",
+      footer: "ModelHub 本地代理已运行 · 本页仅在你本机浏览器中打开",
+      statusErrConnect: "无法连接本地服务，请确认 ModelHub 正在运行。",
+      statusErrEmptyKey: "请先粘贴许可证 Key。",
+      statusActivating: "验证中…",
+      statusErrActivate: "激活失败：",
+      statusErrNetwork: "网络错误：",
+      statusActivated: (tier,days)=>"✅ 已激活："+tier+(days?"（剩余 "+days+"）":"")+"，点击进入控制台。",
+      days: "天"
+    }
+  };
+
+  let lang = localStorage.getItem('modelhub-lang') || 'en';
+
+  function applyLang(){
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    document.title = lang === 'zh' ? 'ModelHub — 欢迎' : 'ModelHub — Welcome';
+    $('btn-en').className = lang === 'en' ? 'active' : '';
+    $('btn-zh').className = lang === 'zh' ? 'active' : '';
+    const dict = i18n[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const k = el.getAttribute('data-i18n');
+      if(dict[k]!=null) el.innerHTML = dict[k];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+      const k = el.getAttribute('data-i18n-placeholder');
+      if(dict[k]!=null) el.placeholder = dict[k];
+    });
+  }
+
+  function setLang(l){
+    lang = l;
+    localStorage.setItem('modelhub-lang', lang);
+    applyLang();
+    loadStatus();
+  }
+
+  function t(key){ return i18n[lang][key] || key; }
+
+  function setStatus(msg, cls){ const s=$('status'); s.innerHTML=msg; s.className='status '+cls; }
+  function showActivated(d){
+    $('activateBox').style.display='none';
+    $('okBox').style.display='block';
+    const days = d.remaining_days!=null ? d.remaining_days+' '+t('days') : '';
+    const tier = d.label || d.tier || (lang==='zh'?'已激活':'Activated');
+    setStatus(t('statusActivated')(tier, days), 'ok');
+  }
+  async function loadStatus(){
+    try{
+      const r = await fetch('/api/license/status', {cache:'no-store'});
+      const d = await r.json();
+      if(d.licensed){ showActivated(d); }
+      else { $('activateBox').style.display='block'; if(d.error) setStatus(d.error,'err'); }
+    }catch(e){ setStatus(t('statusErrConnect'),'err'); }
+  }
+  async function activate(){
+    const key = $('key').value.trim();
+    if(!key){ setStatus(t('statusErrEmptyKey'),'err'); return; }
+    $('activateBtn').disabled=true; $('activateBtn').textContent=t('statusActivating');
+    try{
+      const r = await fetch('/api/license/activate', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({key})});
+      const d = await r.json();
+      if(d && d.licensed){ showActivated(d); }
+      else { setStatus('❌ '+t('statusErrActivate')+(d && d.error ? d.error : (lang==='zh'?'无效的 Key':'Invalid key')), 'err'); }
+    }catch(e){ setStatus('❌ '+t('statusErrNetwork')+e.message,'err'); }
+    finally { $('activateBtn').disabled=false; $('activateBtn').textContent=t('activate'); }
+  }
+  applyLang();
+  loadStatus();
+</script>
+</body>
+</html>

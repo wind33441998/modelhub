@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ModelHub — Retrieve your license key</title>
+<style>
+  :root { --bg:#0b0e14; --card:#141925; --border:#262d3d; --fg:#e6e9ef; --muted:#8b93a7; --accent:#6c8cff; --accent2:#3ddc97; --danger:#ff6b6b; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(1200px 600px at 50% -10%, #1a2236, var(--bg)); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .card { width:min(560px,92vw); background:var(--card); border:1px solid var(--border);
+    border-radius:16px; padding:32px; box-shadow:0 20px 60px rgba(0,0,0,.45); }
+  h1 { margin:0 0 4px; font-size:22px; }
+  p.sub { margin:0 0 22px; color:var(--muted); font-size:14px; line-height:1.6; }
+  label { display:block; font-size:13px; color:var(--muted); margin-bottom:8px; }
+  .row { display:flex; gap:10px; }
+  input { flex:1; background:#0d1119; border:1px solid var(--border); color:var(--fg);
+    border-radius:10px; padding:12px 14px; font-size:15px; outline:none; }
+  input:focus { border-color:var(--accent); }
+  button { background:var(--accent); color:#fff; border:0; border-radius:10px; padding:12px 18px;
+    font-size:15px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  button:disabled { opacity:.5; cursor:default; }
+  .result { margin-top:24px; display:none; }
+  .keybox { background:#0d1119; border:1px solid var(--border); border-radius:10px; padding:14px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:14px; word-break:break-all;
+    display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .tier { color:var(--accent2); font-size:13px; margin-bottom:6px; }
+  .copy { background:transparent; border:1px solid var(--border); color:var(--fg); padding:6px 12px; font-size:12px; }
+  .msg { margin-top:14px; font-size:14px; line-height:1.6; }
+  .msg.err { color:var(--danger); }
+  .msg.ok { color:var(--accent2); }
+  .steps { margin:18px 0 0; padding:0; list-style:none; font-size:13px; color:var(--muted); line-height:1.7; }
+  code { background:#0d1119; border:1px solid var(--border); padding:2px 6px; border-radius:6px; color:var(--fg); }
+  a { color:var(--accent); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Retrieve your ModelHub license key</h1>
+    <p class="sub">Enter the email address you used at Gumroad checkout. We'll look up the license key issued for your purchase.</p>
+    <label for="email">Email used at checkout</label>
+    <div class="row">
+      <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
+      <button id="go">Get my key</button>
+    </div>
+    <div id="msg" class="msg"></div>
+
+    <div id="result" class="result"></div>
+
+    <ul class="steps">
+      <li>1. Copy your license key above.</li>
+      <li>2. Open the <strong>ModelHub Dashboard</strong> &mdash; run <code>modelhub ui</code> in your terminal, or just double-click <code>modelhub.exe</code> (it auto-opens the dashboard).</li>
+      <li>3. Paste the key and click <strong>Activate</strong>, then restart ModelHub.</li>
+    </ul>
+  </div>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const emailInput = document.getElementById("email");
+  const goBtn = document.getElementById("go");
+  const msg = document.getElementById("msg");
+  const result = document.getElementById("result");
+
+  if (params.get("email")) { emailInput.value = params.get("email"); lookup(); }
+
+  goBtn.addEventListener("click", lookup);
+  emailInput.addEventListener("keydown", e => { if (e.key === "Enter") lookup(); });
+
+  async function lookup() {
+    const email = emailInput.value.trim();
+    msg.className = "msg"; msg.textContent = "";
+    result.style.display = "none"; result.innerHTML = "";
+    if (!email) { msg.className = "msg err"; msg.textContent = "Please enter your email."; return; }
+    goBtn.disabled = true; goBtn.textContent = "Looking…";
+    try {
+      const r = await fetch("/api/license/by-email/" + encodeURIComponent(email), { headers: { "Accept": "application/json" } });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || !data.ok) {
+        msg.className = "msg err";
+        msg.textContent = data.error || "No license found for this email. If you just purchased, wait a minute and retry.";
+        return;
+      }
+      msg.className = "msg ok";
+      msg.textContent = "Found " + data.licenses.length + " license(s):";
+      data.licenses.forEach((l, i) => {
+        const box = document.createElement("div");
+        box.style.marginTop = "12px";
+        box.innerHTML =
+          '<div class="tier">' + (l.label || l.tier) + (l.expires_at ? ' · expires ' + new Date(l.expires_at).toLocaleDateString() : '') + '</div>' +
+          '<div class="keybox"><span>' + l.license_key + '</span><button class="copy" data-key="' + l.license_key + '">Copy</button></div>';
+        result.appendChild(box);
+      });
+      result.style.display = "block";
+      result.querySelectorAll(".copy").forEach(b => b.addEventListener("click", () => {
+        navigator.clipboard.writeText(b.getAttribute("data-key")).then(() => { b.textContent = "Copied!"; setTimeout(() => b.textContent = "Copy", 1500); });
+      }));
+    } catch (e) {
+      msg.className = "msg err"; msg.textContent = "Request failed: " + e.message;
+    } finally {
+      goBtn.disabled = false; goBtn.textContent = "Get my key";
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,11 +1,14 @@
 // ModelHub License Server — Main API
 
 const http = require("http");
+const fs = require("fs");
+const path = require("path");
 const { generateLicense, signLicense, verifyIntegrity, TIERS } = require("./lib/crypto");
 const store = require("./lib/store");
 const { handleGumroadWebhook } = require("./webhook");
 
 const PORT = process.env.PORT || 3001;
+const PUBLIC_DIR = path.join(__dirname, "public");
 
 function json(res, code, data) {
   res.writeHead(code, {
@@ -162,6 +165,48 @@ async function handleLicenseInfo(req, res, urlParts) {
   });
 }
 
+// ─── GET /api/license/by-email/:email ───
+// 买家付款后凭结账邮箱自助领取自动生成的 License Key（Gumroad 静态内容无法动态发码，故提供此领取页）。
+async function handleLicenseByEmail(req, res, email) {
+  if (!email) return json(res, 400, { ok: false, error: "email required" });
+  const lowered = String(email).toLowerCase();
+  const matched = store.getLicenses().filter((l) => l.email && l.email.toLowerCase() === lowered);
+  if (!matched.length)
+    return json(res, 404, { ok: false, error: "No license found for this email. If you just purchased, please wait a minute and retry." });
+  json(res, 200, {
+    ok: true,
+    licenses: matched.map((l) => {
+      const t = TIERS[l.tier];
+      return {
+        license_key: l.license_key,
+        tier: l.tier,
+        label: t ? t.label : l.tier,
+        expires_at: getExpiry(l),
+        devices: t ? t.devices : 0,
+      };
+    }),
+  });
+}
+
+// ─── Static file serving (public/) ───
+function serveStatic(req, res, urlPath) {
+  let rel = urlPath === "/" ? "/index.html" : urlPath;
+  const safe = path.normalize(rel).replace(/^(\.\.[\/\\])+/, "");
+  const fp = path.join(PUBLIC_DIR, safe);
+  if (!fp.startsWith(PUBLIC_DIR)) return json(res, 403, { error: "Forbidden" });
+  fs.readFile(fp, (err, data) => {
+    if (err) return json(res, 404, { error: "Not found" });
+    const ext = path.extname(fp).toLowerCase();
+    const ct = ext === ".html" ? "text/html; charset=utf-8"
+      : ext === ".css" ? "text/css"
+      : ext === ".js" ? "application/javascript"
+      : ext === ".json" ? "application/json"
+      : "application/octet-stream";
+    res.writeHead(200, { "Content-Type": ct, "Access-Control-Allow-Origin": "*" });
+    res.end(data);
+  });
+}
+
 // ─── Router ───
 async function handleRequest(req, res) {
   if (req.method === "OPTIONS") return json(res, 204, {});
@@ -174,8 +219,11 @@ async function handleRequest(req, res) {
     if (method === "POST" && path === "/api/referral/generate") return await handleReferralGenerate(req, res);
     if (method === "POST" && path === "/api/referral/apply") return await handleReferralApply(req, res);
     if (method === "POST" && path === "/api/webhook/gumroad") return await handleGumroadWebhook(req, res);
+    if (method === "GET" && path.startsWith("/api/license/by-email/")) return await handleLicenseByEmail(req, res, decodeURIComponent(path.split("/")[4] || ""));
     if (method === "GET" && path.startsWith("/api/license/")) return await handleLicenseInfo(req, res, path.split("/"));
     if (method === "GET" && path === "/api/health") return json(res, 200, { ok: true, uptime: process.uptime() });
+    if (method === "GET" && path === "/") return json(res, 200, { service: "ModelHub License Server", status: "ok", webhook: "/api/webhook/gumroad (POST)", health: "/api/health", retrieve: "/retrieve.html" });
+    if (method === "GET" && !path.startsWith("/api/")) return serveStatic(req, res, path);
     json(res, 404, { error: "Not found" });
   } catch (e) { console.error("API Error:", e); json(res, 500, { error: "Internal error" }); }
 }

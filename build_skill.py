@@ -39,7 +39,10 @@ def sync_proxy():
     with open(LIB_PROXY, "r", encoding="utf-8") as f:
         src = f.read()
     for a, b in REPLACEMENTS:
+        before_len = len(src)
         src = src.replace(a, b)
+        if len(src) != before_len:
+            print("  replaced:", a[:50])
     os.makedirs(os.path.dirname(SKILL_PROXY), exist_ok=True)
     with open(SKILL_PROXY, "w", encoding="utf-8") as f:
         f.write(src)

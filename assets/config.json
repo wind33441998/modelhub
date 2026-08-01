@@ -22,7 +22,8 @@
       "models": {
         "sf-qwen-72b": "Qwen/Qwen2.5-72B-Instruct",
         "sf-deepseek-v3": "deepseek-ai/DeepSeek-V3",
-        "sf-glm-4-9b": "ZhipuAI/glm-4-9b-chat"
+        "sf-glm-4-9b": "ZhipuAI/glm-4-9b-chat",
+        "sf-qwen-7b": "Qwen/Qwen2.5-7B-Instruct"
       }
     },
     "openrouter": {
@@ -45,7 +46,8 @@
       "api_key": "${ZHIPU_KEY}",
       "models": {
         "glm-4-plus": "glm-4-plus",
-        "glm-4-air": "glm-4-air"
+        "glm-4-air": "glm-4-air",
+        "glm-4-flash": "glm-4-flash"
       }
     },
     "moonshot": {
@@ -93,6 +95,39 @@
         "groq-llama-70b": "llama-3.3-70b-versatile",
         "groq-llama-8b": "llama-3.1-8b-instant",
         "groq-deepseek-r1": "deepseek-r1-distill-llama-70b"
+      }
+    },
+    "qianfan": {
+      "display": "百度千帆 ERNIE",
+      "region": "cn",
+      "icon": "🐂",
+      "base_url": "https://qianfan.baidubce.com/v2/chat/completions",
+      "api_key": "${QIANFAN_KEY}",
+      "models": {
+        "qf-ernie-speed": "ernie-speed-128k",
+        "qf-ernie-lite": "ernie-lite-8k",
+        "qf-ernie-tiny": "ernie-tiny-8k"
+      }
+    },
+    "hunyuan": {
+      "display": "腾讯混元 Hunyuan",
+      "region": "cn",
+      "icon": "🕊️",
+      "base_url": "https://api.hunyuan.cloud.tencent.com/v1/chat/completions",
+      "api_key": "${HUNYUAN_KEY}",
+      "models": {
+        "ty-hunyuan-lite": "hunyuan-lite"
+      }
+    },
+    "doubao": {
+      "display": "火山引擎 豆包",
+      "region": "cn",
+      "icon": "🌋",
+      "base_url": "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+      "api_key": "${DOUBAO_KEY}",
+      "models": {
+        "vb-doubao-lite": "doubao-seed-2-0-lite-260428",
+        "vb-doubao-seed": "doubao-seed-1-6-251015"
       }
     }
   }
