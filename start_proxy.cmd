@@ -9,6 +9,10 @@ REM 启用视觉路由：含图片请求改发 SiliconFlow 视觉模型（模型
 set MODELHUB_VISION_PROVIDER=siliconflow
 set MODELHUB_VISION_MODEL=Qwen/Qwen3-VL-8B-Instruct
 :loop
+REM === 日志轮转：超过 20MB 直接清空，避免无限膨胀（重启时旧句柄已释放，可安全删）===
+if exist proxy_cmd.log (
+  for %%I in (proxy_cmd.log) do if %%~zI gtr 20971520 del /q proxy_cmd.log
+)
 if exist modelhub.stop (
   echo [%date% %time%] modelhub.stop present, proxy paused. Delete the file to resume. >> proxy_cmd.log
   ping -n 4 127.0.0.1 >nul 2>&1
