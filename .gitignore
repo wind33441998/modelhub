@@ -25,3 +25,16 @@ server/data/
 
 # 本地 Claude Code 配置（settings/analysis，不进公开仓库）
 .claude/
+
+# 内部策略/草稿文档（不进公开仓库，本地保留参考）
+bug.md
+business-plan.md
+findings.md
+gumroad-seo.md
+market-analysis.md
+netcheck.md
+producthunt-ready.md
+progress.md
+task_plan.md
+未命名.md
+系统搭建.md
