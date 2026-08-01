@@ -19,7 +19,11 @@ a.back:hover{color:var(--text)}
 .tier-name{font-family:var(--disp);font-size:26px;font-weight:800}
 .price{font-family:var(--mono);font-size:34px;font-weight:700;color:var(--green);margin:8px 0}
 .price-sub{color:var(--text-dim);font-size:13px}
-label{display:block;font-size:13px;color:var(--text-dim);margin:16px 0 6px}
+.order-summary{margin-top:14px;padding:14px 16px;background:#0c101a;border:1px solid rgba(16,185,129,.22);border-radius:10px;font-size:13px;color:var(--text-dim);line-height:1.6}
+.order-summary b{color:var(--text)}
+.order-summary .ok{color:var(--green);font-weight:700}
+.order-summary .warn{color:var(--amber);font-weight:600}
+label{display:block;font-size:13px;color:var(--text-dim);margin:20px 0 6px}
 input[type=email]{width:100%;padding:14px 16px;border-radius:10px;background:#0c101a;border:1px solid var(--border);color:var(--text);font-size:15px;font-family:var(--body)}
 input[type=email]:focus{outline:none;border-color:var(--green)}
 .btn{padding:14px 28px;border-radius:10px;font-weight:700;font-size:15px;border:none;cursor:pointer;width:100%;margin-top:18px}
@@ -49,6 +53,7 @@ footer{margin-top:32px;color:var(--text-dim);font-size:12px;text-align:center}
     <div class="tier-name" id="tierName">Loading…</div>
     <div class="price" id="price">—</div>
     <div class="price-sub" id="priceSub"></div>
+    <div class="order-summary hidden" id="orderSummary"></div>
 
     <div id="emailWrap">
       <label for="email">Your email (license will be sent here)</label>
@@ -79,14 +84,50 @@ footer{margin-top:32px;color:var(--text-dim);font-size:12px;text-align:center}
 <script>
 // License Server (handles referral apply + trial register). Static Pages has no backend.
 const API = "https://webhook.claude-proxys.com";
-const GUMROAD = "https://gumroad.com/l/swpiot";
+const GUMROAD_BASE = "https://gumroad.com/l/swpiot";
+
+// One Gumroad product per tier (created 2026-08-02 via Gumroad dashboard). Each is a
+// single FIXED price, so the selected tier + price carry straight through to Gumroad —
+// no version juggling, no "Name a fair price" empty box. webhook.js PERMALINK_MAP maps
+// modelhub-{monthly,yearly,lifetime} -> tier automatically.
+const GUMROAD_PRODUCTS = {
+  monthly:  "https://gumroad.com/l/modelhub-monthly",
+  yearly:   "https://gumroad.com/l/modelhub-yearly",
+  lifetime: "https://gumroad.com/l/modelhub-lifetime",
+};
+
+// Fallback (current state): single versioned product `swpiot`. Gumroad IGNORES
+// ?version= URL params, so buyers always land on the default $3 Monthly version
+// and must manually pick the right plan. We still append it (harmless) and show a
+// reminder on this page.
+const GUMROAD_VERSIONS = {
+  monthly:  "BcIGdq_aC4sCj4lC5olOPQ==",
+  yearly:   "WtS09pg8ZjybRj3fs_e9iA==",
+  lifetime: "Yrm_ZTDEsoBJA_SmLYRhqQ==",
+};
 
 const params = new URLSearchParams(location.search);
-const TIER = params.get("tier") || "yearly";
+// 'free' is a common alias users/externals use for the free trial tier.
+const TIER_ALIASES = { free: "trial" };
+const VALID_TIERS = { trial:1, monthly:1, yearly:1, lifetime:1 };
+let TIER = params.get("tier");
+if (TIER && TIER_ALIASES[TIER]) TIER = TIER_ALIASES[TIER];
+if (!TIER || !VALID_TIERS[TIER]) {
+  const saved = localStorage.getItem("mh_sel_tier");
+  TIER = (saved && VALID_TIERS[saved]) ? saved : "yearly";
+}
+localStorage.setItem("mh_sel_tier", TIER);
+
 const REF = params.get("ref") || localStorage.getItem("mh_ref") || "";
 const PRICES = { trial: 0, monthly: 3, yearly: 29, lifetime: 69 };
 const TIER_LABEL = { trial: "Free Trial", monthly: "Monthly", yearly: "Yearly", lifetime: "Lifetime" };
 const TIER_DAYS = { trial: "7 days free", monthly: "per month", yearly: "per year", lifetime: "one-time" };
+const TIER_PERKS = {
+  trial:    "DeepSeek only · 4 models · 1 device · no credit card",
+  monthly:  "All 8 providers · 24 models · up to 3 devices · email support",
+  yearly:   "All 8 providers · 24 models · up to 5 devices · unlimited logs",
+  lifetime: "All 8 providers · 24 models · up to 10 devices · forever updates",
+};
 
 const $ = (id) => document.getElementById(id);
 const setStatus = (msg, cls) => { $("status").className = cls || "info"; $("status").innerHTML = msg; };
@@ -101,13 +142,27 @@ if (REF) {
   }
 }
 
-if (!PRICES[TIER]) {
-  $("tierName").textContent = "Unknown tier";
-  setStatus("Invalid tier in URL.", "err");
+if (!VALID_TIERS[TIER]) {
+  $("tierName").textContent = "Invalid plan";
+  $("emailWrap").classList.add("hidden");
+  $("gumroadWrap").classList.add("hidden");
+  $("trialBtn").classList.add("hidden");
+  $("gumroadNote").classList.add("hidden");
+  setStatus('This purchase link is invalid or expired. <a href="/#pricing" style="color:var(--green)">Choose a plan →</a>', "err");
 } else {
   $("tierName").textContent = TIER_LABEL[TIER] + " License";
   $("price").textContent = TIER === "trial" ? "$0" : "$" + PRICES[TIER];
   $("priceSub").textContent = TIER_DAYS[TIER];
+  const os = $("orderSummary");
+  os.classList.remove("hidden");
+  let html = "<span class='ok'>✓ You are buying:</span> <b>" + TIER_LABEL[TIER] + " — $" + PRICES[TIER] +
+    (TIER === "lifetime" ? " (one-time)" : TIER === "monthly" ? " /month" : TIER === "yearly" ? " /year" : "") +
+    "</b><br>" + TIER_PERKS[TIER];
+  if (!GUMROAD_PRODUCTS[TIER]) {
+    html += "<br><span class='warn'>⚠ After Continue, on the Gumroad page select the <b>" + TIER_LABEL[TIER] +
+      " ($" + PRICES[TIER] + ")</b> plan before paying.</span>";
+  }
+  os.innerHTML = html;
   if (TIER === "trial") {
     $("gumroadWrap").classList.add("hidden");
     $("gumroadNote").classList.add("hidden");
@@ -119,7 +174,6 @@ if (!PRICES[TIER]) {
 }
 
 // Referral intent: record (code,email) on License Server BEFORE leaving for Gumroad.
-// After Gumroad payment, the webhook matches by email and awards the referrer.
 async function goGumroad() {
   const email = $("email").value.trim();
   if (!validEmail(email)) { setStatus("Please enter a valid email first.", "err"); return; }
@@ -139,8 +193,15 @@ async function goGumroad() {
       console.warn("[referral] apply error:", e.message);
     }
   }
-  // Prefill email on Gumroad so the purchase webhook email matches the pending record.
-  window.location.href = GUMROAD + "?email=" + encodeURIComponent(email);
+  // Use the dedicated per-tier product if configured; otherwise the single versioned
+  // product (buyer must pick the plan on Gumroad — Gumroad ignores ?version=).
+  const productUrl = GUMROAD_PRODUCTS[TIER] || GUMROAD_BASE;
+  let gum = productUrl + "?email=" + encodeURIComponent(email);
+  if (!GUMROAD_PRODUCTS[TIER]) {
+    const vid = GUMROAD_VERSIONS[TIER];
+    if (vid) gum += "&version=" + encodeURIComponent(vid);
+  }
+  window.location.href = gum;
 }
 
 async function doTrial() {
