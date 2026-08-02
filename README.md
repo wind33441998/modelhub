@@ -1,79 +1,72 @@
 # ModelHub
 
-> Claude Code 多模型本地网关 — 国产供应商直连免翻墙，8 家 21 模型，Web 管理界面，完整 tool use 转换
+> Self-hosted AI gateway for **Claude Code** & **Codex** — route to **DeepSeek, Qwen, Kimi, GLM, Gemini, Groq** with your own API key. Up to 97% cheaper than Anthropic. 7-day free trial.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Latest Release](https://img.shields.io/github/v/release/wind33441998/modelhub)](https://github.com/wind33441998/modelhub/releases)
 
-> **品牌说明**：本项目前身为 *AnyModel for Claude Code*，现统一为 **ModelHub** 品牌。Skill 安装名 `anymodel-for-claude-code` 保持不变（向后兼容），npm 包名为 `modelhub-cli`（安装后命令仍为 `modelhub`）。两者同源同核，共享 `~/.modelhub/` 数据目录。
+**ModelHub** is a lightweight, self-hosted proxy that lets [Claude Code](https://docs.claude.com/claude-code) and OpenAI **Codex** talk to **any OpenAI-compatible model provider** — especially low-cost models like DeepSeek, Qwen, Kimi, and Zhipu GLM. You bring your own API key (BYOK); ModelHub translates the Anthropic Messages API ↔ OpenAI Chat Completions format and handles **tool use** end-to-end.
 
-## 两种安装方式
+> 🔑 **Bring your own key (BYOK).** ModelHub is a router — it does not sell or bundle API credits. You pay providers (DeepSeek, OpenRouter, etc.) directly with your own key. Many providers offer their own free tiers.
 
-ModelHub 提供两种形态，按需选择：
+## ✨ Why ModelHub?
 
-| 形态 | 安装命令 | 适用场景 |
-|------|----------|----------|
-| **npm CLI** | `npm install -g modelhub-cli` | 已有 Node 环境，想要命令行管理 |
-| **Skill** | `/plugin marketplace add wind33441998/modelhub` | 在 CodeBuddy / Claude Code 插件市场内安装 |
+- **Slash your API bill** — run Claude Code on DeepSeek / Qwen / Gemini for up to 97% less than Anthropic's API. You pay the provider directly via your own key.
+- **Claude Code & Codex ready** — full Anthropic ↔ OpenAI protocol conversion with **complete `tool_use` support** (file read/write, shell commands, sub-agents all work).
+- **Multi-model router** — 8 providers, 21+ models; switch at runtime in the Web UI without restarting Claude Code.
+- **Zero dependencies** — a single Node.js binary. No Docker, no Python, no `npm install` required to run.
+- **Web management UI** — set keys, switch models, view logs in your browser at `http://127.0.0.1:4000`.
+- **Privacy-first** — runs 100% on your machine; your keys never leave localhost.
+- **Windows & macOS** — first-class Windows support; paths/encoding edge cases handled.
 
-两种形态共享同一套代理核心和数据目录，配一次 Key 两边都能用。
+## 📦 Install
 
-## 为什么用 ModelHub？
+**Option A — Download the release (recommended, includes the `activate` tool):**
 
-- **零依赖** — 纯 Node.js 原生实现，无 `npm install`、无 Docker，下载即用（仅需 Node ≥ 14）
-- **国产供应商直连** — DeepSeek / 智谱 / 通义千问 / Kimi / 硅基流动，无需翻墙
-- **国际供应商也支持** — OpenRouter / Gemini / Groq，有 Key 就能连
-- **完整 tool use** — 双向转换 Claude Code 的工具调用（执行命令、读写文件等核心功能正常）
-- **Web 管理界面** — 浏览器里切模型、配密钥、看日志，不用改配置文件
-- **界面热切换** — Claude Code 配 `ANTHROPIC_MODEL=default`，在界面点一下即可切模型，无需重启
-- **中英双语** — 界面和文档都支持中文
-- **Windows 优先** — 在 Windows 上开箱即用，路径/编码坑已填平
+1. Go to **[Releases](https://github.com/wind33441998/modelhub/releases)** and grab the latest build for your OS.
+2. Unzip and run `modelhub` (or `modelhub.exe`). A **7-day free trial** starts automatically — no signup needed.
 
-## 快速开始
-
-### 方式一：npm CLI
+**Option B — npm:**
 
 ```bash
-# 全局安装
 npm install -g modelhub-cli
-
-# 启动代理（前台运行）
 modelhub start
-
-# 配置 API Key（例如 DeepSeek）
-modelhub keys set deepseek sk-xxxxxxxx
-
-# 打开 Web 管理界面
-modelhub ui
 ```
 
-### 方式二：Skill 形态
+(Requires Node ≥ 14.)
 
-在 CodeBuddy / Claude Code 内：
+**Option C — Claude Code / CodeBuddy plugin marketplace:**
 
 ```
 /plugin marketplace add wind33441998/modelhub
 /plugin install anymodel-for-claude-code@anymodel-marketplace
 ```
 
-安装后双击 `start.bat`（Windows），或命令行：
+## 🚀 Quick start
 
 ```bash
-cd scripts
-node proxy.js
+# 1. Start the proxy (Web UI at http://127.0.0.1:4000)
+modelhub start
+
+# 2. Add your provider API key (BYOK) — e.g. DeepSeek
+modelhub keys set deepseek sk-xxxxxxxx
+
+# 3. Open the Web UI to pick a model
+modelhub ui
 ```
 
-### 接入 Claude Code
+Then point Claude Code at the local proxy.
 
-两种方式任选：
+**Environment variables**
 
-**环境变量：**
 ```bash
 export ANTHROPIC_API_URL=http://127.0.0.1:4000
 export ANTHROPIC_AUTH_TOKEN=sk-local-proxy
 export ANTHROPIC_MODEL=default
 ```
 
-**settings.json**（`~/.claude/settings.json`）：
+**Or `~/.claude/settings.json`**
+
 ```json
 {
   "env": {
@@ -90,122 +83,114 @@ export ANTHROPIC_MODEL=default
 }
 ```
 
-> **注意**：用 `127.0.0.1` 而非 `localhost`，避免 IPv6 `::1` 解析问题。`ANTHROPIC_MODEL` 设 `default` 后可在管理界面随时热切换，无需重启 Claude Code。保存配置后需**完全退出并重开** Claude Code 会话才生效。
+> 💡 Use `127.0.0.1` (not `localhost`) to avoid IPv6 `::1` resolution issues. Set `ANTHROPIC_MODEL=default` to hot-swap models from the Web UI without restarting. Fully quit and reopen Claude Code after saving.
 
-## CLI 命令
+ModelHub also targets **OpenAI Codex** — point Codex at the same proxy as an OpenAI-compatible backend.
 
-| 命令 | 说明 |
-|------|------|
-| `modelhub start [-d] [-p PORT]` | 启动代理（`-d` 后台，`-p` 指定端口） |
-| `modelhub stop` | 停止后台代理 |
-| `modelhub status` | 查看运行状态 + 当前模型 |
-| `modelhub models` | 列出所有可用模型 |
-| `modelhub switch <model>` | 切换当前激活模型 |
-| `modelhub keys [list]` | 列出已配置的 API Key |
-| `modelhub keys set <provider> <key>` | 设置供应商 API Key |
-| `modelhub keys del <provider>` | 删除供应商 API Key |
-| `modelhub ui` | 在浏览器打开管理界面 |
-| `modelhub doctor` | 环境自检（Node / 端口 / 配置 / Key） |
-| `modelhub selftest` | 运行代理链路自检（无需 API Key） |
+## 🔌 Supported providers
 
-## 支持的供应商
+| Provider | Region | Sample models | Env var |
+|----------|--------|---------------|---------|
+| 🐋 **DeepSeek** | China | deepseek-chat, deepseek-reasoner | `DEEPSEEK_KEY` |
+| 🌊 **SiliconFlow** | China | Qwen, DeepSeek, GLM hosted | `SILICONFLOW_KEY` |
+| 🧠 **Zhipu GLM** | China | glm-4-plus, glm-4-air | `ZHIPU_KEY` |
+| 🌙 **Kimi (Moonshot)** | China | moonshot-v1-8k | `MOONSHOT_KEY` |
+| 🐱 **Qwen (Alibaba)** | China | qwen-max, qwen-plus, qwen-turbo | `QWEN_KEY` |
+| 🌐 **OpenRouter** | Global | 200+ models | `OPENROUTER_KEY` |
+| ✨ **Google Gemini** | Global | gemini-2.5-pro, 2.5-flash | `GEMINI_KEY` |
+| ⚡ **Groq** | Global | Llama 3, DeepSeek-R1 | `GROQ_KEY` |
 
-| 供应商 | 地区 | 模型数 | 环境变量 |
-|--------|------|--------|----------|
-| 🐋 DeepSeek | 中国 | 2 | `DEEPSEEK_KEY` |
-| 🌊 SiliconFlow 硅基流动 | 中国 | 3 | `SILICONFLOW_KEY` |
-| 🧠 智谱 GLM | 中国 | 2 | `ZHIPU_KEY` |
-| 🌙 Kimi (Moonshot) | 中国 | 1 | `MOONSHOT_KEY` |
-| 🐱 通义千问 Qwen | 中国 | 4 | `QWEN_KEY` |
-| 🌐 OpenRouter | 国际 | 3 | `OPENROUTER_KEY` |
-| ✨ Google Gemini | 国际 | 3 | `GEMINI_KEY` |
-| ⚡ Groq | 国际 | 3 | `GROQ_KEY` |
+Bring **your own key** for any of these — ModelHub routes requests and converts protocols. The `default` / `auto` aliases resolve to whatever model you've selected in the Web UI; the built-in `echo` alias is a key-free loopback for testing the proxy chain.
 
-API Key 可通过环境变量设置，也可通过 `modelhub keys set` 或 Web 界面配置（存入 `~/.modelhub/keys.json`，不进 git）。
+## 💳 Pricing & License
 
-> 别名 `default` 和 `auto` 是特殊保留字：发给代理时解析为「界面当前选中的模型」。另有内置自检别名 **`echo`**：不消耗任何外部 API、不需要密钥，直接回放一条模拟 Anthropic SSE（含 tool_use），用于验证代理链路是否正常。
+ModelHub is **free to try for 7 days** (one device, full features). After the trial, choose a license:
 
-## 数据目录
+| Plan | Price | Duration | Devices |
+|------|-------|----------|---------|
+| **Trial** | Free | 7 days | 1 |
+| **Monthly** | $3 | 30 days | 3 |
+| **Yearly** | $29 | 365 days | 5 |
+| **Lifetime** | $69 | Forever | 10 |
 
-所有配置和数据存储在 `~/.modelhub/`（Skill 和 CLI 共享）：
+Get a license from the official site or Gumroad (links in **[Releases](https://github.com/wind33441998/modelhub/releases)**), then activate:
 
-```
-~/.modelhub/
-├── config.json      # 供应商配置（首次运行自动创建）
-├── keys.json        # API Key（不进 git）
-├── state.json       # 当前激活模型
-├── modelhub.pid     # 后台运行 PID（CLI 形态）
-└── modelhub.log     # 后台运行日志（CLI 形态）
+```bash
+modelhub activate <YOUR_LICENSE_KEY>
 ```
 
-## 技术架构
+> Licenses are BYOK — you always use your own provider API keys. ModelHub is the gateway, not a credit reseller.
+
+## 🛠 CLI reference
+
+| Command | Description |
+|---------|-------------|
+| `modelhub start [-d] [-p PORT]` | Start proxy (`-d` daemon, `-p` port) |
+| `modelhub stop` | Stop background proxy |
+| `modelhub status` | Show status + current model |
+| `modelhub models` | List available models |
+| `modelhub switch <model>` | Switch active model |
+| `modelhub keys [list]` | List configured keys |
+| `modelhub keys set <provider> <key>` | Set a provider key |
+| `modelhub keys del <provider>` | Delete a provider key |
+| `modelhub ui` | Open Web UI in browser |
+| `modelhub doctor` | Environment self-check |
+| `modelhub selftest` | Run proxy chain self-test (no key needed) |
+| `modelhub activate <key>` | Activate a license |
+
+## 🏗 How it works
 
 ```
-Claude Code  ──Anthropic Messages API──→  ModelHub 代理 (127.0.0.1:4000)
-                                              │
-                                    OpenAI Chat Completions
-                                              │
-                                    ┌─────────┴─────────┐
-                                    │                   │
-                              国产供应商            国际供应商
-                           (免翻墙直连)         (需网络访问)
+Claude Code / Codex
+   │  Anthropic Messages API
+   ▼
+ModelHub proxy  (http://127.0.0.1:4000)
+   │  OpenAI Chat Completions
+   ▼
+┌──────────────┴──────────────┐
+Domestic providers        Global providers
+(DeepSeek, Qwen,          (OpenRouter, Gemini,
+ Kimi, GLM — no VPN)       Groq)
 ```
 
-ModelHub 将 Anthropic Messages API 请求转换为 OpenAI Chat Completions 格式，转发到上游供应商，再将响应流式转换回 Anthropic SSE 格式。完整支持 tool use 双向转换（Claude Code 执行命令、读写文件等核心功能依赖此能力）。
+ModelHub converts Anthropic Messages API requests into OpenAI Chat Completions, forwards them upstream, then streams the response back as Anthropic SSE — with **bidirectional `tool_use` conversion** so Claude Code's core capabilities (shell, file I/O, sub-agents) keep working.
 
-### 管理 API
+### Management API
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | `/` 或 `/ui` | 管理界面 |
-| GET | `/api/env` | 环境自检结果 |
-| GET | `/api/models` | 当前模型 + 全部供应商与模型别名 |
-| GET | `/api/status` | 存活探活 |
-| GET | `/api/logs` | 活动日志（最近请求） |
-| GET | `/api/selftest` | 内置自检（回环 echo 模型，免密钥） |
-| POST | `/api/switch` | 切换当前模型 |
-| POST | `/api/keys` | 保存/清除密钥 |
-| POST | `/v1/messages` | Anthropic 协议代理入口（Claude Code 实际调用） |
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/` , `/ui` | Web UI |
+| GET | `/api/models` | Current model + providers |
+| GET | `/api/status` | Health check |
+| GET | `/api/selftest` | Key-free loopback test |
+| POST | `/api/switch` | Switch model |
+| POST | `/api/keys` | Save / clear keys |
+| POST | `/v1/messages` | Anthropic proxy entry (used by Claude Code) |
 
-## 本地开发
+## 🧑‍💻 Local development
 
 ```bash
 git clone https://github.com/wind33441998/modelhub.git
 cd modelhub
-
-# CLI 形态
 node bin/modelhub.js start
-
-# 或 Skill 形态
-cd plugins/anymodel-for-claude-code/skills/anymodel-for-claude-code/scripts
-node proxy.js
 ```
 
-重新打包 Skill：`python build_skill.py`（生成 `anymodel-for-claude-code.skill`）
+Repackage the Skill: `python build_skill.py`.
 
-## 仓库结构
+## 📂 Repo structure
 
 ```
 modelhub/
-├── bin/modelhub.js          # CLI 入口
-├── lib/cli.js               # CLI 命令分发（11 个命令）
-├── lib/proxy.js             # 代理核心（协议转换 + 管理 API）
-├── assets/config.json       # 供应商配置（8 家 21 模型）
-├── assets/ui.html           # Web 管理界面
-├── package.json             # npm 包定义
-├── plugins/                 # Skill 形态
-│   └── anymodel-for-claude-code/
-│       ├── .codebuddy-plugin/plugin.json
-│       ├── .claude-plugin/plugin.json
-│       └── skills/anymodel-for-claude-code/
-│           ├── SKILL.md
-│           └── scripts/（proxy.js / config.json / ui.html / check-env.js / start.bat）
-├── .codebuddy-plugin/marketplace.json
-├── .claude-plugin/marketplace.json
-├── build_skill.py           # Skill 打包脚本
+├── bin/modelhub.js          # CLI entry
+├── lib/cli.js               # CLI dispatch (11 commands)
+├── lib/proxy.js             # Proxy core (protocol + UI API)
+├── assets/config.json       # Provider config (8 providers, 21+ models)
+├── assets/ui.html           # Web UI
+├── package.json             # npm package
+├── plugins/                 # Skill form factor
 └── README.md
 ```
 
-## License
+## 📄 License
 
-MIT
+MIT — see [LICENSE](LICENSE).
